@@ -1,0 +1,25 @@
+language: java
+
+os:
+  - linux
+#  - windows (no Java support for now)
+
+jdk:
+  - openjdk8
+  - oraclejdk8
+  - oraclejdk9
+  - oraclejdk11
+
+cache:
+  directories:
+    - ~/.m2/repository
+
+addons:
+  sonarcloud:
+    organization: "scambon-github"
+
+install:
+    mvn --errors --show-version --batch-mode --update-snapshots --strict-checksums --fail-at-end install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true
+
+script:
+  - mvn --errors --show-version --batch-mode --fail-at-end clean install
