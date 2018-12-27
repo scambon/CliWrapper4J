@@ -2,8 +2,11 @@
 
 A library to quickly build Java-friendly APIs to call command line applications.
 
-[![build_status](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
 
+| Branch | Travis | Bugs | Coverage |
+| ------ | ------ | ---- | -------- |
+| Master | [![](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=bugs&branch=master)](https://sonarcloud.io/project/issues?branch=master&id=scambon_CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=coverage&branch=master)](https://sonarcloud.io/project/issues?branch=master&id=scambon_CliWrapper4J) |
+| Develop | [![](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=develop)](https://travis-ci.org/scambon/CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=bugs&branch=develop)](https://sonarcloud.io/project/issues?branch=develop&id=scambon_CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=coverage&branch=develop)](https://sonarcloud.io/project/issues?branch=develop&id=scambon_CliWrapper4J) |
 
 
 ## Concepts

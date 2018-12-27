@@ -28,7 +28,7 @@ public final class LinuxOperatingSystem extends AbstractCommandBasedOperatingSys
    * Instantiates a new Linux operating system.
    */
   protected LinuxOperatingSystem() {
-    super("Linux", Arrays.asList("locale", "-m"),
+    super("linux", Arrays.asList("locale", "charmap"),
         LinuxOperatingSystem.class.getResource("linux_charmap-2-java.properties"));
   }
 

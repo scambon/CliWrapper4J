@@ -67,7 +67,6 @@
 		<surefire.version>2.22.1</surefire.version>
 
 		<!-- Plugin configurations -->
-		<buildtime.output.log>true</buildtime.output.log>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -75,9 +74,6 @@
 		<jpms.module.automatic.name>${project.artifactId}</jpms.module.automatic.name>
 		<!-- SonarQube configurations -->
 		<sonar.projectKey>scambon_CliWrapper4J</sonar.projectKey>
-		<sonar.organization>scambon-github</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.login>${env.SONAR_TOKEN}</sonar.login>
 	</properties>
 
 	<dependencies>
@@ -168,7 +164,6 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
-							<additionalJOption>-html5</additionalJOption>
 							<excludePackageNames>*.internal</excludePackageNames>
 						</configuration>
 					</execution>
