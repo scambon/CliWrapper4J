@@ -15,19 +15,20 @@
 
 package io.github.scambon.cliwrapper4j.internal;
 
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Executable;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
-import io.github.scambon.cliwrapper4j.Option;
+import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.IExecutable;
+import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.internal.check.CommandLineWrapperChecker;
 import io.github.scambon.cliwrapper4j.internal.check.Diagnostic;
-import io.github.scambon.cliwrapper4j.internal.handlers.CommandWithParametersMethodHandler;
-import io.github.scambon.cliwrapper4j.internal.handlers.ExecutableCommandWithParametersMethodHandler;
+import io.github.scambon.cliwrapper4j.internal.check.ExecutableSubInterfaceChecker;
+import io.github.scambon.cliwrapper4j.internal.handlers.ExecuteLaterSwitchMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.ExecuteMethodHandler;
+import io.github.scambon.cliwrapper4j.internal.handlers.ExecuteNowSwitchMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.IMethodHandler;
-import io.github.scambon.cliwrapper4j.internal.handlers.OptionMethodHandler;
+import io.github.scambon.cliwrapper4j.internal.handlers.SwitchMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.UnhandledMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 
@@ -43,7 +44,7 @@ import java.util.Map;
  * @param <W>
  *          the command line wrapper type
  */
-public final class CommandLineInvocationHandler<W extends ICommandLineWrapper>
+public final class ExecutableHandler<W extends IExecutable>
     implements InvocationHandler {
 
   /** The execute method. */
@@ -51,7 +52,7 @@ public final class CommandLineInvocationHandler<W extends ICommandLineWrapper>
 
   static {
     try {
-      EXECUTE_METHOD = ICommandLineWrapper.class.getMethod("execute");
+      EXECUTE_METHOD = IExecutable.class.getMethod("execute");
     } catch (NoSuchMethodException | SecurityException exception) {
       throw new RuntimeException(exception);
     }
@@ -72,7 +73,7 @@ public final class CommandLineInvocationHandler<W extends ICommandLineWrapper>
    * @param executionEnvironment
    *          the execution environment
    */
-  public CommandLineInvocationHandler(Class<W> commandLineWrapperInterface,
+  public ExecutableHandler(Class<W> commandLineWrapperInterface,
       Map<Method, IMethodHandler> method2HandlerMap, IExecutionEnvironment executionEnvironment) {
     this.method2HandlerMap = method2HandlerMap;
     Executable executableAnnotation = commandLineWrapperInterface.getAnnotation(Executable.class);
@@ -89,9 +90,9 @@ public final class CommandLineInvocationHandler<W extends ICommandLineWrapper>
    *          the command line wrapper interface
    * @return the map
    */
-  public static <C extends ICommandLineWrapper> Map<Method, IMethodHandler> createHandlers(
+  public static <C extends IExecutable> Map<Method, IMethodHandler> createHandlers(
       Class<C> commandLineWrapperInterface) {
-    CommandLineWrapperChecker checker = new CommandLineWrapperChecker();
+    ExecutableSubInterfaceChecker checker = new ExecutableSubInterfaceChecker();
     Diagnostic diagnostic = checker.validateInterface(commandLineWrapperInterface);
     diagnostic.check();
     Map<Method, IMethodHandler> method2HandlerMap = new HashMap<>();
@@ -121,21 +122,16 @@ public final class CommandLineInvocationHandler<W extends ICommandLineWrapper>
     if (method.isDefault() || Modifier.isPrivate(modifiers)) {
       return new UnhandledMethodHandler(method);
     } else {
-      Option option = method.getAnnotation(Option.class);
-      if (option != null) {
-        return new OptionMethodHandler(method, option);
+      Switch zwitchAnnotation = method.getAnnotation(Switch.class);
+      ExecuteNow executeNowAnnotation = method.getAnnotation(ExecuteNow.class);
+      ExecuteLater executeLaterAnnotation = method.getAnnotation(ExecuteLater.class);
+      if (executeNowAnnotation != null) {
+        return new ExecuteNowSwitchMethodHandler(method, zwitchAnnotation, executeNowAnnotation);
+      } else if (executeLaterAnnotation != null) {
+        return new ExecuteLaterSwitchMethodHandler(method, zwitchAnnotation,
+            executeLaterAnnotation);
       } else {
-        Command command = method.getAnnotation(Command.class);
-        if (command != null) {
-          boolean executesOnCommand = ExecutableNode.executesOnCommand(method);
-          if (executesOnCommand) {
-            return new ExecutableCommandWithParametersMethodHandler(method, command);
-          } else {
-            return new CommandWithParametersMethodHandler(method, command);
-          }
-        } else {
-          throw new CommandLineException("This should be found earlier...");
-        }
+        return new SwitchMethodHandler(method, zwitchAnnotation);
       }
     }
   }

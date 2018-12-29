@@ -15,15 +15,19 @@
 
 package io.github.scambon.cliwrapper4j.converters;
 
+import java.util.Map;
+
 /**
- * A converter that returns the given string, within double quotes iff there is a space in the
+ * A converter that returns the given string, within double quotes if there is a space in the
  * string.
  */
 public class StringQuotedIfNeededConverter extends StringConverter {
 
   @Override
-  public String convert(Object in, Class<String> outClass) {
-    String convertedValue = super.convert(in, outClass);
+  public String convert(
+      Object in, Class<String> outClass,
+      Map<String, Object> extraParameterName2ValueMap) {
+    String convertedValue = super.convert(in, outClass, extraParameterName2ValueMap);
     if (convertedValue.contains(" ")) {
       convertedValue = '"' + convertedValue + '"';
     }

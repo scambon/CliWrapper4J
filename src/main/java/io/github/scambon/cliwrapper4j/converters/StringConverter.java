@@ -15,6 +15,7 @@
 
 package io.github.scambon.cliwrapper4j.converters;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,9 +27,11 @@ public class StringConverter implements IConverter<Object, String> {
   public boolean canConvert(Class<Object> inClass, Class<String> outClass) {
     return String.class.equals(outClass);
   }
-
+  
   @Override
-  public String convert(Object in, Class<String> outClass) {
+  public String convert(
+      Object in, Class<String> outClass,
+      Map<String, Object> extraParameterName2ValueMap) {
     return Objects.toString(in);
   }
 }

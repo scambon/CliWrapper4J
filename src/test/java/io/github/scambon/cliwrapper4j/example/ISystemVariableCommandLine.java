@@ -15,12 +15,15 @@
 
 package io.github.scambon.cliwrapper4j.example;
 
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.Executable;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.IExecutable;
+import io.github.scambon.cliwrapper4j.Switch;
 
 @Executable({"cmd", "/C", "echo Hello %SOME_VARIABLE%"})
-public interface ISystemVariableCommandLine extends ICommandLineWrapper {
-  @Command("")
+public interface ISystemVariableCommandLine extends IExecutable {
+
+  @Switch("")
+  @ExecuteNow
   String doIt();
 }

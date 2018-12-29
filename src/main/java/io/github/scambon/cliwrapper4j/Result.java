@@ -15,11 +15,13 @@
 
 package io.github.scambon.cliwrapper4j;
 
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 
 /**
  * A class that represents the raw output of calling a command line. Filling this result depends on
- * what the originating {@link ICommandLineExecutor} deems appropriate.
+ * what the originating {@link IExecutor} deems appropriate.
+ * 
+ * @see IExecutor
  */
 public final class Result {
 
@@ -71,5 +73,27 @@ public final class Result {
    */
   public int getReturnCode() {
     return returnCode;
+  }
+
+  @Override
+  public String toString() {
+    return "Result [output='" + shorten(output) + "', error='" + shorten(error) + "', returnCode='"
+        + returnCode + "']";
+  }
+
+  /**
+   * Shortens a String for display if too long.
+   *
+   * @param string
+   *          the string
+   * @return the shortened string
+   */
+  private static String shorten(String string) {
+    int length = string.length();
+    if (length >= 100) {
+      return string.substring(0, 100) + "...";
+    } else {
+      return string;
+    }
   }
 }

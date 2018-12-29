@@ -15,6 +15,7 @@
 
 package io.github.scambon.cliwrapper4j.internal.nodes;
 
+import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.aggregators.IAggregator;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 
@@ -22,15 +23,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
- * A command line node that works for a command or option.
+ * A command line node that works for a @{@link Switch}.
  */
-public class CommandOrOptionWithParametersNode implements ICommandLineNode {
+public final class SwitchNode implements ICommandLineNode {
 
-  /** The command or option. */
-  private final String commandOrOption;
+  private final String zwitch;
   /** The aggregator. */
   private final IAggregator aggregator;
   /** The aggregator parameter. */
@@ -41,12 +43,14 @@ public class CommandOrOptionWithParametersNode implements ICommandLineNode {
   private final String flattenerParameter;
   /** The parameters. */
   private final List<ParameterNode<?>> parameters = new ArrayList<>();
+  /** The extra parameter name 2 value map. */
+  private final Map<String, Object> extraParameterName2ValueMap = new TreeMap<>();
 
   /**
    * Instantiates a new command or option with parameters node.
    *
-   * @param commandOrOption
-   *          the command or option
+   * @param zwitch
+   *          the zwitch
    * @param aggregator
    *          the aggregator
    * @param aggregatorParameter
@@ -56,9 +60,11 @@ public class CommandOrOptionWithParametersNode implements ICommandLineNode {
    * @param flattenerParameter
    *          the flattener parameter
    */
-  public CommandOrOptionWithParametersNode(String commandOrOption, IAggregator aggregator,
-      String aggregatorParameter, IFlattener flattener, String flattenerParameter) {
-    this.commandOrOption = commandOrOption;
+  public SwitchNode(
+      Switch zwitch,
+      IAggregator aggregator, String aggregatorParameter,
+      IFlattener flattener, String flattenerParameter) {
+    this.zwitch = zwitch.value();
     this.aggregator = aggregator;
     this.aggregatorParameter = aggregatorParameter;
     this.flattener = flattener;
@@ -73,6 +79,17 @@ public class CommandOrOptionWithParametersNode implements ICommandLineNode {
    */
   public void addParameter(ParameterNode<?> parameter) {
     parameters.add(parameter);
+    parameter.setExtraParameterName2ValueMap(extraParameterName2ValueMap);
+  }
+
+  /**
+   * Adds the extra parameters.
+   *
+   * @param extraParameterName2ValueMap2
+   *          the extra parameter name 2 value map 2
+   */
+  public void addExtraParameters(Map<String, Object> extraParameterName2ValueMap2) {
+    extraParameterName2ValueMap.putAll(extraParameterName2ValueMap2);
   }
 
   @Override
@@ -82,9 +99,9 @@ public class CommandOrOptionWithParametersNode implements ICommandLineNode {
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
     String flattenedConvertedParameters = flattener.flatten(convertedParameters,
-        flattenerParameter);
-    String aggregatedCommandOrOptionWithParameters = aggregator.aggregate(commandOrOption,
-        flattenedConvertedParameters, aggregatorParameter);
-    return Collections.singletonList(aggregatedCommandOrOptionWithParameters);
+        flattenerParameter, extraParameterName2ValueMap);
+    String aggregatedSwitchWithParameters = aggregator.aggregate(zwitch,
+        flattenedConvertedParameters, aggregatorParameter, extraParameterName2ValueMap);
+    return Collections.singletonList(aggregatedSwitchWithParameters);
   }
 }

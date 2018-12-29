@@ -32,10 +32,10 @@ public interface IOperatingSystem {
   static final List<IOperatingSystem> OPERATING_SYSTEMS = asList(
       new LinuxOperatingSystem(),
       new WindowsOperatingSystem())
-      .stream()
-      .map(MemoizingOperatingSystem::new)
-      .collect(toList());
-  
+          .stream()
+          .map(MemoizingOperatingSystem::new)
+          .collect(toList());
+
   /**
    * Checks if this operating system is the current one.
    *

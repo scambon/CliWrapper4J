@@ -18,19 +18,39 @@ package io.github.scambon.cliwrapper4j;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.aggregators.IAggregator;
+import io.github.scambon.cliwrapper4j.converters.IConverter;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
+import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Map;
 
 /**
- * An annotation for command method parameters that are to be passed to the executor instead of
- * directly to the command line. This is usually associated to custom implementations of
- * {@link ICommandLineExecutor#execute(
- * java.util.List, io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment,
- * java.util.Map)}, for which the value can be retrieved from the {@link Map} parameter.
- * This annotation is not compatible with {@link Converter}.
+ * <p>
+ * An annotation for @{@link Switch} method parameters that are to be passed to the framework
+ * instead of directly to the command line.
+ * </p>
+ * <p>
+ * Usage include:
+ * </p>
+ * <ul>
+ * <li>{@link IConverter#convert(Object, Class, Map)}</li>
+ * <li>{@link IFlattener#flatten(java.util.List, String, Map)}</li>
+ * <li>{@link IAggregator#aggregate(String, String, String, Map)}</li>
+ * <li>
+ * {@link IExecutor#execute(
+ * java.util.List, io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment, Map)}
+ * </li>
+ * </ul>
+ * <p>
+ * The meaning of the parameter values passed as {@link Extra} arguments is left to the
+ * implementation of the above interfaces.
+ * </p>
+ * <p>
+ * This annotation is not compatible with {@link Converter}: values are passed withtout conversion.
+ * </p>
  */
 @Retention(RUNTIME)
 @Target(PARAMETER)

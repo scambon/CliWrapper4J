@@ -20,7 +20,7 @@ import static java.util.Collections.emptyMap;
 import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.environment.DefaultExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.ProcessExecutor;
 
 import java.io.IOException;
@@ -60,7 +60,7 @@ public abstract class AbstractCommandBasedOperatingSystem implements IOperatingS
     this.command = command;
     this.system2CharsetPropertiesFileUrl = system2CharsetPropertiesFileUrl;
   }
-  
+
   @Override
   public boolean isCase(String osName) {
     return osName.contains(operatingSystemNameMarker);
@@ -78,7 +78,7 @@ public abstract class AbstractCommandBasedOperatingSystem implements IOperatingS
    *          the executor
    * @return the console encoding
    */
-  protected final Charset getConsoleEncoding(ICommandLineExecutor executor) {
+  protected final Charset getConsoleEncoding(IExecutor executor) {
     DefaultExecutionEnvironment executionEnvironment = new DefaultExecutionEnvironment();
     executionEnvironment.setEncoding(StandardCharsets.US_ASCII);
     Result commandResult = executionEnvironment.run(executor, command, emptyMap());

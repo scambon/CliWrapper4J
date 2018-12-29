@@ -18,33 +18,40 @@ package io.github.scambon.cliwrapper4j;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import io.github.scambon.cliwrapper4j.converters.IConverter;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * An annotation that describes an option, i.e. a tag and values to be added to the command line
- * that does not triggers execution.
+ * An annotation that makes a @{@link Switch}-annotated method run the execution of the command line
+ * when the {@link IExecutable#execute()} method is called. This is used when the method is not the
+ * last segment of the command line.
  * </p>
  * <p>
- * The method can have parameters that will be marshalled. Use a combination of:
+ * The semantics (and rules) around this annotation are the same as with {@link ExecuteNow}, but:
  * </p>
- * <ol>
- * <li>parameters annotated with @{@link Converter} to convert the parameters to strings</li>
- * <li>annotating the method with @{@link Flattener} to flatten multiple parameter value strings
- * into a single one</li>
- * <li>annotating the method with @{@link Aggregator} to aggregate the command name and the
- * flattened parameter values</li>
- * </ol>
+ * <ul>
+ * <li>The @{@link Switch} method must return its interface</li>
+ * <li>The execution return type is defined here in {@link #value()} and must be compatible with
+ * the @{@link Converter}</li>
+ * </ul>
+ * 
+ * @see ExecuteNow
+ * @see Switch
+ * @see Executor
+ * @see ReturnCode
+ * @see Converter
  */
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface Option {
-
+public @interface ExecuteLater {
   /**
-   * The option name.
+   * The type asked to the {@link IConverter}, if the command is to execute later with the
+   * {@link IExecutable#execute()} method.
    *
-   * @return the option name, can be empty
+   * @return the type asked to the converter
    */
-  String value();
+  Class<?> value();
 }

@@ -16,6 +16,7 @@
 package io.github.scambon.cliwrapper4j.executors;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
+import io.github.scambon.cliwrapper4j.Extra;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,14 +31,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * A runnable that reads a command line output and possibly
- * responds to it on the command line input.
+ * A runnable that reads a command line output and possibly responds to it on the command line
+ * input.
  */
 public final class InteractorRunnable implements Runnable {
-  
+
   /** The Constant DEFAULT_CHARACTER_BUFFER_SIZE. */
   private static final int DEFAULT_CHARACTER_BUFFER_SIZE = 256;
-  
+
   /** The character buffer size. */
   private final int characterBufferSize;
   /** The in reader. */
@@ -57,13 +58,13 @@ public final class InteractorRunnable implements Runnable {
    * @param interactor
    *          the interactor
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    */
   public InteractorRunnable(InputStream in, OutputStream out, Charset encoding,
       IInteractor interactor, Map<String, Object> extraParameterName2ValueMap) {
     this(in, out, encoding, interactor, extraParameterName2ValueMap, DEFAULT_CHARACTER_BUFFER_SIZE);
   }
-  
+
   /**
    * Instantiates a new interactor runnable.
    *
@@ -76,7 +77,7 @@ public final class InteractorRunnable implements Runnable {
    * @param interactor
    *          the interactor
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    * @param characterBufferSize
    *          the character buffer size
    */
@@ -88,8 +89,8 @@ public final class InteractorRunnable implements Runnable {
     PrintWriter outWriter = new PrintWriter(
         new BufferedWriter(new OutputStreamWriter(out, encoding)),
         true);
-    this.interactor =
-        inString -> interactor.react(inString, outWriter, extraParameterName2ValueMap);
+    this.interactor = inString -> interactor.react(inString, outWriter,
+        extraParameterName2ValueMap);
   }
 
   @Override
@@ -105,13 +106,13 @@ public final class InteractorRunnable implements Runnable {
       throw new CommandLineException(ioe);
     }
   }
-  
+
   /**
    * An interface that reacts to a chunk of output.
    */
   @FunctionalInterface
   public interface IInteractor {
-    
+
     /**
      * Reacts.
      *

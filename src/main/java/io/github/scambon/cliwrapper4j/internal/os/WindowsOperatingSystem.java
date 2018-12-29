@@ -23,7 +23,7 @@ import java.util.Arrays;
  * The operating system helper that runs on Windows.
  */
 public final class WindowsOperatingSystem extends AbstractCommandBasedOperatingSystem {
-  
+
   /**
    * Instantiates a new windows operating system.
    */

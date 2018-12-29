@@ -28,9 +28,9 @@ public final class VersionResultConverter extends AbstractRegexResultConverter<V
   public VersionResultConverter() {
     super(CONVERTER, "(?:java|version) \"?(\\d+(\\.\\d+)*)");
   }
-  
+
   @Override
-  protected String selectOutput(Result result) {
+  protected String extractSourceText(Result result) {
     return result.getError() + result.getOutput();
   }
 }

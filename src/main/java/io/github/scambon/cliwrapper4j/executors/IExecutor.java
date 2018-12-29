@@ -15,6 +15,7 @@
 
 package io.github.scambon.cliwrapper4j.executors;
 
+import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 
@@ -24,7 +25,7 @@ import java.util.Map;
 /**
  * An interface that actually executes the command line marshalled elements.
  */
-public interface ICommandLineExecutor {
+public interface IExecutor {
 
   /**
    * Executes the given elements as a command line.
@@ -34,7 +35,7 @@ public interface ICommandLineExecutor {
    * @param environment
    *          the environment
    * @param extraParameterName2ValueMap
-   *          the map from an extra parameter name to its value
+   *          the map from an {@link Extra} parameter name to its value
    * @return the result
    */
   Result execute(
@@ -42,11 +43,12 @@ public interface ICommandLineExecutor {
       Map<String, Object> extraParameterName2ValueMap);
 
   /**
-   * Gets a command line executor around this one that traces calls to the execute methods.
+   * Gets a command line executor around this one that traces calls to the
+   * {@link #execute(List, IExecutionEnvironment, Map)} method.
    *
    * @return the new tracing command line executor around this one
    */
-  default ICommandLineExecutor traced() {
-    return new TracingCommandLineExecutor(this);
+  default IExecutor traced() {
+    return new TracingExecutor(this);
   }
 }

@@ -18,8 +18,8 @@ package io.github.scambon.cliwrapper4j.converters;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 
 /**
- * A converter that transforms an {@link Iterable} or array into a String by delegating the
- * conversion of each element to a delegate converter and flattening them using a flattener.
+ * A parameter converter that transforms an {@link Iterable} or array into a String by delegating
+ * the conversion of each element to a delegate converter and flattening them using a flattener.
  */
 public class MultipleParameterConverter extends CompositeConverter<Object, String> {
 
@@ -42,7 +42,6 @@ public class MultipleParameterConverter extends CompositeConverter<Object, Strin
       IConverter<I, String> elementConverter, IFlattener flattener, String flattenerParameter) {
     super(
         new ArrayParameterConverter(inType, elementConverter, flattener, flattenerParameter),
-        new IterableParameterConverter(inType, elementConverter, flattener,
-            flattenerParameter));
+        new IterableParameterConverter(inType, elementConverter, flattener, flattenerParameter));
   }
 }

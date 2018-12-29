@@ -20,7 +20,6 @@ import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 /**
  * An interface that defines how to react to a method call by delegation from an invocation handler.
  */
-@FunctionalInterface
 public interface IMethodHandler {
 
   /**

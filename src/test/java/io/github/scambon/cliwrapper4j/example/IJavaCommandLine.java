@@ -16,53 +16,64 @@
 package io.github.scambon.cliwrapper4j.example;
 
 import io.github.scambon.cliwrapper4j.Aggregator;
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.Flattener;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
-import io.github.scambon.cliwrapper4j.Option;
+import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
-import io.github.scambon.cliwrapper4j.converters.FilesWithPathSeparatorConverter;
+import io.github.scambon.cliwrapper4j.ReturnCode;
+import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.converters.FilesWithPathSeparatorParameterConverter;
 
 import java.io.File;
 import java.util.Collection;
 
 @Executable("java")
-public interface IJavaCommandLine extends ICommandLineWrapper {
+public interface IJavaCommandLine extends IExecutable {
 
-  @Command("--help")
+  @Switch("--help")
+  @ExecuteNow
   int help();
 
-  @Option("-classpath")
+  @Switch("-classpath")
   IJavaCommandLine classpath(
-      @Converter(FilesWithPathSeparatorConverter.class) File... classpathElements);
+      @Converter(FilesWithPathSeparatorParameterConverter.class) File... classpath);
 
-  @Option("-classpath")
+  @Switch("-classpath")
   IJavaCommandLine classpath(
-      @Converter(FilesWithPathSeparatorConverter.class) Collection<File> classpathElements);
+      @Converter(FilesWithPathSeparatorParameterConverter.class) Collection<File> classpath);
 
-  @Option("-D")
+  @Switch("-D")
   @Aggregator("")
   @Flattener("=")
   IJavaCommandLine systemProperty(String property, Object value);
 
-  @Option("-D")
+  @Switch("-D")
   @Aggregator("")
   @Flattener("=")
   IJavaCommandLine systemPropertyAsStringLength(String property,
       @Converter(StringLengthConverter.class) Object value);
 
-  @Command("")
+  @Switch("")
+  @ExecuteNow
   Result main(String mainQualifiedName);
 
-  @Command(value = "-version", converter = VersionResultConverter.class)
-  Version version();  
+  @Switch("-version")
+  @ExecuteNow
+  @Converter(VersionResultConverter.class)
+  Version version();
 
-  @Command(value = "-version", converter = VersionResultConverter.class, expectedReturnCodes = {})
+  @Switch("-version")
+  @ExecuteNow
+  @ReturnCode({})
+  @Converter(VersionResultConverter.class)
   Version versionWithoutReturnCodeCheck();
 
-  @Command(value = "-version", converter = VersionResultConverter.class, expectedReturnCodes = 1)
+  @Switch("-version")
+  @ExecuteNow
+  @ReturnCode(1)
+  @Converter(VersionResultConverter.class)
   Version versionWithCustomReturnCodeCheck();
 
   default int getMajorVersion() {

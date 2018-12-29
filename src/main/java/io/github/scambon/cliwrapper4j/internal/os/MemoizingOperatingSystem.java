@@ -17,7 +17,6 @@ package io.github.scambon.cliwrapper4j.internal.os;
 
 import java.nio.charset.Charset;
 
-
 /**
  * A delegating implementation that stores the method results.
  */

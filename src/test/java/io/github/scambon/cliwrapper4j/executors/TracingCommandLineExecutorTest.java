@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.environment.DefaultExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
-import io.github.scambon.cliwrapper4j.executors.TracingCommandLineExecutor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +32,9 @@ public class TracingCommandLineExecutorTest {
   @Test
   public void testTraceExecutionContent() {
     List<String> expectedCommands = Arrays.asList("java", "-version");
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("java", "-version");
+    IExecutor executor = MockExecutionHelper.createExecutor("java", "-version");
     List<String> actualCommands = new ArrayList<>();
-    executor = new TracingCommandLineExecutor(executor, actualCommands::addAll);
+    executor = new TracingExecutor(executor, actualCommands::addAll);
     executor.execute(expectedCommands, new DefaultExecutionEnvironment(), null);
     assertEquals(expectedCommands, actualCommands);
   }
@@ -44,7 +42,7 @@ public class TracingCommandLineExecutorTest {
   @Test
   public void testTraceExecutionResult() {
     List<String> expectedCommands = Arrays.asList("java", "-version");
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("java", "-version");
+    IExecutor executor = MockExecutionHelper.createExecutor("java", "-version");
     executor = executor.traced();
     Result result = executor.execute(expectedCommands, new DefaultExecutionEnvironment(), null);
     assertFalse(result.getOutput()

@@ -15,23 +15,28 @@
 
 package io.github.scambon.cliwrapper4j.internal.nodes;
 
+import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.converters.IConverter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
- * A command line node that works for a parameter.
+ * A command line node that works for a @{@link Switch} method parameter.
  *
  * @param <I>
  *          the input type
  */
-public class ParameterNode<I> implements ICommandLineNode {
+public final class ParameterNode<I> implements ICommandLineNode {
 
   /** The converter. */
   private final IConverter<I, String> converter;
   /** The value. */
   private final I value;
+  
+  /** The extra parameter name 2 value map. */
+  private Map<String, Object> extraParameterName2ValueMap;
 
   /**
    * Instantiates a new parameter node.
@@ -48,7 +53,11 @@ public class ParameterNode<I> implements ICommandLineNode {
 
   @Override
   public List<String> flatten() {
-    String convertedValue = converter.convert(value, String.class);
+    String convertedValue = converter.convert(value, String.class, extraParameterName2ValueMap);
     return Collections.singletonList(convertedValue);
+  }
+
+  public void setExtraParameterName2ValueMap(Map<String, Object> extraParameterName2ValueMap) {
+    this.extraParameterName2ValueMap = extraParameterName2ValueMap;
   }
 }

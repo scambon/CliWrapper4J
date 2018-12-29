@@ -15,21 +15,28 @@
 
 package io.github.scambon.cliwrapper4j.flatteners;
 
+import io.github.scambon.cliwrapper4j.Extra;
+
 import java.util.List;
+import java.util.Map;
 
 /**
- * An interface that flattens a list of values into a single string.
+ * An interface that flattens a list of parameter values into a single string.
  */
 public interface IFlattener {
 
   /**
-   * Flattens the values into a single string.
+   * Flattens the parameter values into a single string.
    *
-   * @param values
-   *          the values
-   * @param parameter
+   * @param parameterValues
+   *          the parameter values
+   * @param flattenerParameter
    *          the flattener parameter, interpretation depends on the implementation
-   * @return the flattened values
+   * @param extraParameterName2ValueMap
+   *          the {@link Extra} parameter name 2 value map
+   * @return the flattened parameter values
    */
-  String flatten(List<String> values, String parameter);
+  String flatten(
+      List<String> parameterValues, String flattenerParameter,
+      Map<String, Object> extraParameterName2ValueMap);
 }

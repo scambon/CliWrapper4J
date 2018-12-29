@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 /**
  * A method handler that works for user-defined methods.
  */
-public class UnhandledMethodHandler implements IMethodHandler {
+public final class UnhandledMethodHandler implements IMethodHandler {
 
   /** The method handle. */
   private final MethodHandle methodHandle;

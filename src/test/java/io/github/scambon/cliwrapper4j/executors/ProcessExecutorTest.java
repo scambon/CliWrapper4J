@@ -23,7 +23,6 @@ import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.environment.DefaultExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.executors.ProcessExecutor;
 
 import java.util.Arrays;
 

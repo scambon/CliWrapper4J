@@ -15,33 +15,38 @@
 
 package io.github.scambon.cliwrapper4j.internal.handlers;
 
-import io.github.scambon.cliwrapper4j.Command;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 
 import java.lang.reflect.Method;
 
 /**
- * A method handler that works for commands that require execution.
+ * A method handler that works for @{@link ExecuteNow} methods.
  */
-public class ExecutableCommandWithParametersMethodHandler
-    extends CommandWithParametersMethodHandler {
+public class ExecuteNowSwitchMethodHandler
+    extends
+      AbstractExecuteSwitchMethodHandler {
 
   /**
    * Instantiates a new executable command with parameters method handler.
    *
    * @param method
    *          the method
-   * @param command
-   *          the command
+   * @param zwitch
+   *          the switch
+   * @param executeNow
+   *          the execute now
    */
-  public ExecutableCommandWithParametersMethodHandler(Method method, Command command) {
-    super(method, command);
+  public ExecuteNowSwitchMethodHandler(Method method, Switch zwitch, ExecuteNow executeNow) {
+    super(method, zwitch,
+        (executableNode, extraParameterName2ValueMap) ->
+            executableNode.setExecutionContext(method, executeNow, extraParameterName2ValueMap));
   }
 
   @Override
   public Object handle(Object proxy, Object[] arguments, ExecutableNode executableNode) {
     super.handle(proxy, arguments, executableNode);
-    ExecuteMethodHandler executeMethodHandler = new ExecuteMethodHandler();
-    return executeMethodHandler.handle(proxy, arguments, executableNode);
+    return executableNode.execute();
   }
 }

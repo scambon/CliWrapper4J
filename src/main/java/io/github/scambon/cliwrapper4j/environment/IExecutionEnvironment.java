@@ -15,8 +15,9 @@
 
 package io.github.scambon.cliwrapper4j.environment;
 
+import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.Result;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -33,7 +34,7 @@ public interface IExecutionEnvironment {
   /**
    * Gets the path.
    *
-   * @return the path
+   * @return the path, empty if not set
    */
   Optional<Path> getPath();
 
@@ -60,24 +61,25 @@ public interface IExecutionEnvironment {
    *          the value
    */
   void setEnvironmentVariable(String variable, String value);
-  
+
   /**
    * Runs the execution.
    *
    * @param executor
    *          the executor
-   * @param elements
-   *          the elements
+   * @param cliElements
+   *          the command line interface elements
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    * @return the result
    */
   Result run(
-      ICommandLineExecutor executor, List<String> elements,
+      IExecutor executor,
+      List<String> cliElements,
       Map<String, Object> extraParameterName2ValueMap);
 
   /**
-   * Configures the process builder with the elements from this execution environment.
+   * Configures the given process builder with the elements from this execution environment.
    *
    * @param processBuilder
    *          the process builder to configure

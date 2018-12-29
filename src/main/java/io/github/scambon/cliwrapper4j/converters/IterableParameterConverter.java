@@ -18,13 +18,14 @@ package io.github.scambon.cliwrapper4j.converters;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * A converter that transforms an {@link Iterable} into a String by delegating the conversion of
- * each element to a delegate converter and flattening them using a flattener.
+ * A parameter converter that transforms an {@link Iterable} into a String by delegating the
+ * conversion of each element to a delegate converter and flattening them using a flattener.
  *
  * @param <I>
  *          the input type
@@ -67,12 +68,14 @@ public final class IterableParameterConverter<I> implements IConverter<Iterable<
   }
 
   @Override
-  public String convert(Iterable<I> in, Class<String> outClass) {
+  public String convert(
+      Iterable<I> in, Class<String> outClass, Map<String, Object> extraParameterName2ValueMap) {
     Spliterator<I> spliterator = in.spliterator();
     List<String> convertedValues = StreamSupport.stream(spliterator, false)
-        .map(element -> elementConverter.convert(element, outClass))
+        .map(element -> elementConverter.convert(element, outClass, extraParameterName2ValueMap))
         .collect(Collectors.toList());
-    String convertedIterable = flattener.flatten(convertedValues, flattenerParameter);
+    String convertedIterable = flattener.flatten(convertedValues, flattenerParameter,
+        extraParameterName2ValueMap);
     return convertedIterable;
   }
 }

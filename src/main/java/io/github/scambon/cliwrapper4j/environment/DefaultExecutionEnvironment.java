@@ -16,7 +16,7 @@
 package io.github.scambon.cliwrapper4j.environment;
 
 import io.github.scambon.cliwrapper4j.Result;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.internal.os.IOperatingSystem;
 
 import java.nio.charset.Charset;
@@ -33,10 +33,9 @@ public class DefaultExecutionEnvironment implements IExecutionEnvironment {
 
   /** The path. */
   private final Path path;
-  
   /** The environment variables. */
   private final Map<String, String> environmentVariables = new LinkedHashMap<>();
-  
+
   /** The encoding. */
   private Charset encoding;
 
@@ -46,7 +45,7 @@ public class DefaultExecutionEnvironment implements IExecutionEnvironment {
   public DefaultExecutionEnvironment() {
     this(null);
   }
-  
+
   /**
    * Instantiates a new default execution environment.
    *
@@ -61,7 +60,7 @@ public class DefaultExecutionEnvironment implements IExecutionEnvironment {
   public Optional<Path> getPath() {
     return Optional.ofNullable(path);
   }
-  
+
   /**
    * Sets the encoding.
    *
@@ -90,11 +89,11 @@ public class DefaultExecutionEnvironment implements IExecutionEnvironment {
   public Map<String, String> getEnvironmentVariables() {
     return environmentVariables;
   }
-  
+
   @Override
   public Result run(
-      ICommandLineExecutor executor, List<String> elements,
+      IExecutor executor, List<String> cliElements, 
       Map<String, Object> extraParameterName2ValueMap) {
-    return executor.execute(elements, this, extraParameterName2ValueMap);
+    return executor.execute(cliElements, this, extraParameterName2ValueMap);
   }
 }

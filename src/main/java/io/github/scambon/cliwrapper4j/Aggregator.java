@@ -25,9 +25,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * An annotation that describes how to aggregate a command or option and its flattened values, using
+ * An annotation that describes how to aggregate a switch and its flattened parameter values, using
  * the {@link #aggregator()} class configured with the {@link #value()} as its parameter. This
- * should only defined along with a @{@link Command} or @{@link Option} annotation.
+ * should only defined along with a @{@link Switch} annotation.
+ * 
+ * @see Switch
+ * @see IAggregator
  */
 @Retention(RUNTIME)
 @Target(METHOD)
@@ -43,7 +46,7 @@ public @interface Aggregator {
   String value() default " ";
 
   /**
-   * The aggregator class to use to join the command or option and the flattened values.
+   * The aggregator class to use to join the switch and the flattened parameter values.
    *
    * @return the aggregator class, defaults to {@link SymbolAggregator} if not explicitly configured
    */

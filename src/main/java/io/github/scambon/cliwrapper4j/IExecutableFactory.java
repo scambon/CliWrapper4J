@@ -19,28 +19,31 @@ import io.github.scambon.cliwrapper4j.environment.DefaultExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 
 /**
- * A factory that creates {@link ICommandLineWrapper} objects.
+ * A factory that creates {@link IExecutable} objects.
  *
  * @param <W>
- *          the command line wrapper type
+ *          the executable interface
+ * 
+ * @see IExecutable
+ * @see ReflectiveExecutableFactory
  */
-public interface ICommandLineWrapperFactory<W extends ICommandLineWrapper> {
+public interface IExecutableFactory<W extends IExecutable> {
 
   /**
-   * Creates the command line wrapper object using the {@link DefaultExecutionEnvironment}.
+   * Creates an {@link IExecutable} using a {@link DefaultExecutionEnvironment}.
    *
-   * @return the command line wrapper object
+   * @return the executable
    */
   default W create() {
     return create(new DefaultExecutionEnvironment());
   }
 
   /**
-   * Creates the command line wrapper object.
+   * Creates an {@link IExecutable}.
    *
    * @param executionEnvironment
    *          the execution environment
-   * @return the command line wrapper object
+   * @return the executable
    */
   public W create(IExecutionEnvironment executionEnvironment);
 }

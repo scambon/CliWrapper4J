@@ -15,6 +15,8 @@
 
 package io.github.scambon.cliwrapper4j.converters;
 
+import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -32,7 +34,7 @@ public class LambdaConverter<I, O> implements IConverter<I, O> {
   /** The output class. */
   private final Class<O> outClass;
   /** The converter. */
-  private final Function<I, O> converter;
+  private final BiFunction<I, Map<String, Object>, O> converter;
 
   /**
    * Instantiates a new lambda converter.
@@ -46,6 +48,22 @@ public class LambdaConverter<I, O> implements IConverter<I, O> {
    */
   public LambdaConverter(Class<I> inClass, Class<O> outClass,
       Function<I, O> convertlet) {
+    this(inClass, outClass, (in, extra) -> convertlet.apply(in));
+  }
+  
+  /**
+   * Instantiates a new lambda converter.
+   *
+   * @param inClass
+   *          the input class
+   * @param outClass
+   *          the output class
+   * @param convertlet
+   *          the conversion function
+   */
+  public LambdaConverter(
+      Class<I> inClass, Class<O> outClass,
+      BiFunction<I, Map<String, Object>, O> convertlet) {
     this.inClass = inClass;
     this.outClass = outClass;
     this.converter = convertlet;
@@ -57,7 +75,8 @@ public class LambdaConverter<I, O> implements IConverter<I, O> {
   }
 
   @Override
-  public final O convert(I in, Class<O> outClass) {
-    return converter.apply(in);
+  public final O convert(
+      I in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap) {
+    return converter.apply(in, extraParameterName2ValueMap);
   }
 }

@@ -19,32 +19,42 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.scambon.cliwrapper4j.Aggregator;
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
+import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.Executor;
 import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.Flattener;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
-import io.github.scambon.cliwrapper4j.Option;
-import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorConverter;
+import io.github.scambon.cliwrapper4j.IExecutable;
+import io.github.scambon.cliwrapper4j.Result;
+import io.github.scambon.cliwrapper4j.ReturnCode;
+import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.aggregators.IAggregator;
+import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorParameterConverter;
 import io.github.scambon.cliwrapper4j.converters.StringConverter;
+import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.example.VersionResultConverter;
-import io.github.scambon.cliwrapper4j.internal.check.CommandLineWrapperChecker;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
+import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 import io.github.scambon.cliwrapper4j.internal.check.Diagnostic;
+import io.github.scambon.cliwrapper4j.internal.check.ExecutableSubInterfaceChecker;
 import io.github.scambon.cliwrapper4j.internal.check.Issue;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.Test;
 
-public class CommandLineWrapperCheckerTest {
-  public interface NotExecutableClass extends ICommandLineWrapper {
-    @Command("!")
+public class ExecutableSubInterfaceCheckerTest {
+  public interface NotExecutableClass extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
     int whatever();
   }
 
@@ -56,21 +66,23 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable({})
-  public interface EmptyArrayExecutable extends ICommandLineWrapper {
-    @Command("!")
+  public interface EmptyArrayExecutable extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
     int whatever();
   }
-  
+
   @Test
   public void testFailOnCreatingEmptyArrayExecutable() {
     List<Issue> issues = getIssues(EmptyArrayExecutable.class);
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("EmptyArrayExecutable", "empty executable array"));
   }
-  
+
   @Executable("")
-  public interface EmptyNameExecutable extends ICommandLineWrapper {
-    @Command("!")
+  public interface EmptyNameExecutable extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
     int whatever();
   }
 
@@ -82,7 +94,7 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public static class NotInterface implements ICommandLineWrapper {
+  public static class NotInterface implements IExecutable {
     @Override
     public <O> O execute() {
       throw new UnsupportedOperationException();
@@ -97,7 +109,7 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface NotCommantNotOptionNotHandledMethod extends ICommandLineWrapper {
+  public interface NotCommantNotOptionNotHandledMethod extends IExecutable {
 
     @Flattener
     int shouldNotHaveAFlattener();
@@ -126,22 +138,23 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface CommandOrOptionMethod extends ICommandLineWrapper {
-    @Command("!")
-    @Option("!")
+  public interface ExecuteNowAndLaterMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
+    @ExecuteLater(Object.class)
     int whatever();
   }
 
   @Test
-  public void testFailOnCreatingCommandOrOptionMethod() {
-    List<Issue> issues = getIssues(CommandOrOptionMethod.class);
+  public void testFailOnCreatingExecuteNowAndLaterMethod() {
+    List<Issue> issues = getIssues(ExecuteNowAndLaterMethod.class);
     assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("whatever", "both"));
+        annotatedElementAndDescriptionContains("whatever", "both @ExecuteNow and @ExecuteLater"));
   }
-  
+
   @Executable("!")
-  public interface ExtraOnOptionMethod extends ICommandLineWrapper {
-    @Option("!")
+  public interface ExtraOnOptionMethod extends IExecutable {
+    @Switch("!")
     int whatever(@Extra("extra") String whatever);
   }
 
@@ -151,26 +164,28 @@ public class CommandLineWrapperCheckerTest {
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("whatever", "Extra"));
   }
-  
+
   @Executable("!")
-  public interface ConverterAndExtraOnCommandMethod extends ICommandLineWrapper {
-    @Command("!")
+  public interface ConverterAndExtraOnCommandMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
     int whatever(@Converter(StringConverter.class) @Extra("extra") String whatever);
   }
-  
+
   @Test
   public void testFailOnCreatingConverterAndExtraOnCommandMethod() {
     List<Issue> issues = getIssues(ConverterAndExtraOnCommandMethod.class);
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("whatever", "@Converter and @Extra"));
   }
-  
+
   @Executable("!")
-  public interface MultipleExtraWithSameNameOnCommandMethod extends ICommandLineWrapper {
-    @Command("!")
+  public interface MultipleExtraWithSameNameOnCommandMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
     int whatever(@Extra("extra") String whatever1, @Extra("extra") String whatever2);
   }
-  
+
   @Test
   public void testFailOnCreatingMultipleExtraWithSameNameOnOptionMethod() {
     List<Issue> issues = getIssues(MultipleExtraWithSameNameOnCommandMethod.class);
@@ -179,9 +194,10 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface ParameterConversionFailureMethod extends ICommandLineWrapper {
-    @Command("!")
-    int whatever(@Converter(FilesWithSpaceSeparatorConverter.class) Properties properties);
+  public interface ParameterConversionFailureMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
+    int whatever(@Converter(FilesWithSpaceSeparatorParameterConverter.class) Properties properties);
   }
 
   @Test
@@ -192,8 +208,10 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface ReturnValueConversionFailureCommandMethod extends ICommandLineWrapper {
-    @Command(value = "!", converter = VersionResultConverter.class)
+  public interface ReturnValueConversionFailureCommandMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteNow
+    @Converter(VersionResultConverter.class)
     Properties whatever();
   }
 
@@ -205,8 +223,9 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface ReturnValueLaterConversionFailureCommandMethod extends ICommandLineWrapper {
-    @Command(value = "!", outType = Properties.class)
+  public interface ReturnValueLaterConversionFailureCommandMethod extends IExecutable {
+    @Switch("!")
+    @ExecuteLater(value = Properties.class)
     ReturnValueLaterConversionFailureCommandMethod whatever();
   }
 
@@ -218,9 +237,10 @@ public class CommandLineWrapperCheckerTest {
   }
 
   @Executable("!")
-  public interface IgnoredMethodWithCommand extends ICommandLineWrapper {
-    @Command(value = "!", outType = Properties.class)
-    default int whatever() {
+  public interface IgnoredMethodWithCommand extends IExecutable {
+    @Switch("!")
+    @ExecuteLater(value = Properties.class)
+    default int whatever(@Converter(StringConverter.class) String p, @Extra("e") String e) {
       return 42;
     }
   }
@@ -230,17 +250,139 @@ public class CommandLineWrapperCheckerTest {
     List<Issue> issues = getIssues(IgnoredMethodWithCommand.class);
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("whatever", "default"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("whatever", "@Converter"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("whatever", "@Extra"));
+  }
+
+  @Executable("!")
+  public interface BrokenAnnotationDependencyMethods extends IExecutable {
+
+    @ExecuteNow
+    void executeNowWithoutSwitch();
+
+    @ExecuteLater(Properties.class)
+    void executeLaterWithoutSwitch();
+
+    @Flattener
+    void flattenerWithoutSwitch();
+
+    @Aggregator
+    void aggregatorWithoutSwitch();
+
+    @Executor
+    void executorWithoutExecute();
+
+    @ReturnCode
+    void returnCodeWithoutExecute();
+  }
+
+  @Test
+  public void testFailOnCreatingBrokenAnnotationDependencyMethods() {
+    List<Issue> issues = getIssues(BrokenAnnotationDependencyMethods.class);
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("executeNowWithoutSwitch", "Switch"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("executeLaterWithoutSwitch", "Switch"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("flattenerWithoutSwitch", "Switch"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("aggregatorWithoutSwitch", "Switch"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("executorWithoutExecute", "ExecuteNow"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("returnCodeWithoutExecute", "ExecutorNow"));
+  }
+
+  public static class NonReflectivelyCreatableExecutor implements IExecutor {
+
+    public NonReflectivelyCreatableExecutor(String s) {
+    }
+
+    @SuppressWarnings("unused")
+    private NonReflectivelyCreatableExecutor() {
+    }
+
+    @Override
+    public Result execute(List<String> elements, IExecutionEnvironment environment,
+        Map<String, Object> extraParameterName2ValueMap) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public static class NonReflectivelyCreatableFlattener implements IFlattener {
+
+    public NonReflectivelyCreatableFlattener(String s) {
+    }
+
+    @SuppressWarnings("unused")
+    private NonReflectivelyCreatableFlattener() {
+    }
+
+    @Override
+    public String flatten(List<String> parameterValues, String flattenerParameter,
+        Map<String, Object> extraParameterName2ValueMap) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public static class NonReflectivelyCreatableAggregator implements IAggregator {
+
+    public NonReflectivelyCreatableAggregator(String s) {
+    }
+
+    @SuppressWarnings("unused")
+    private NonReflectivelyCreatableAggregator() {
+    }
+
+    @Override
+    public String aggregate(String zwitch, String flattenedParameterValues,
+        String aggregatorParameter, Map<String, Object> extraParameterName2ValueMap) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  @Executable("!")
+  public interface NotReflectivelyCreatableClassesMethods extends IExecutable {
+
+    @Switch("s")
+    @ExecuteNow
+    @Executor(NonReflectivelyCreatableExecutor.class)
+    void brokenExecutable();
+
+    @Switch("s")
+    @Flattener(flattener = NonReflectivelyCreatableFlattener.class)
+    void brokenFlattener();
+
+    @Switch("s")
+    @Aggregator(aggregator = NonReflectivelyCreatableAggregator.class)
+    void brokenAggregator();
+  }
+  
+  @Test
+  public void testFailOnCreatingNonReflectivelyCreatibleClasses() {
+    List<Issue> issues = getIssues(NotReflectivelyCreatableClassesMethods.class);
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains(
+            "brokenExecutable", "NonReflectivelyCreatableExecutor"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains(
+            "brokenFlattener", "NonReflectivelyCreatableFlattener"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains(
+            "brokenAggregator", "NonReflectivelyCreatableAggregator"));
   }
 
   @Test
   public void testCheckDiagnostic() {
-    CommandLineWrapperChecker checker = new CommandLineWrapperChecker();
+    ExecutableSubInterfaceChecker checker = new ExecutableSubInterfaceChecker();
     Diagnostic diagnostic = checker.validateInterface(IgnoredMethodWithCommand.class);
     assertThrows(CommandLineException.class, () -> diagnostic.check());
   }
 
-  private <W extends ICommandLineWrapper> List<Issue> getIssues(Class<W> clazz) {
-    CommandLineWrapperChecker checker = new CommandLineWrapperChecker();
+  private <W extends IExecutable> List<Issue> getIssues(Class<W> clazz) {
+    ExecutableSubInterfaceChecker checker = new ExecutableSubInterfaceChecker();
     Diagnostic diagnostic = checker.validateInterface(clazz);
     List<Issue> issues = diagnostic.getIssues();
     return issues;

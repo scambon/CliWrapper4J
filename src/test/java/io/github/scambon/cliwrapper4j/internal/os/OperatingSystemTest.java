@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
-import io.github.scambon.cliwrapper4j.internal.os.IOperatingSystem;
 
 import org.junit.jupiter.api.Test;
 

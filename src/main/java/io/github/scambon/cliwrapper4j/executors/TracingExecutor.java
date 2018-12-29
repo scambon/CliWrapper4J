@@ -20,29 +20,46 @@ import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
- * A base command line executor that decorates a delegate executor.
+ * A command line executor that traces calls to the execute methods and delegates the actual
+ * execution.
  */
-public abstract class AbstractDelegatingCommandLineExecutor implements ICommandLineExecutor {
+public class TracingExecutor extends AbstractDelegatingExecutor {
 
-  /** The delegate. */
-  private final ICommandLineExecutor delegate;
+  /** The printer. */
+  private final Consumer<List<String>> printer;
 
   /**
-   * Instantiates a new abstract delegating command line executor.
+   * Instantiates a new tracing command line executor.
    *
    * @param delegate
    *          the delegate
    */
-  public AbstractDelegatingCommandLineExecutor(ICommandLineExecutor delegate) {
-    this.delegate = delegate;
+  public TracingExecutor(IExecutor delegate) {
+    this(delegate, System.out::println);
+  }
+
+  /**
+   * Instantiates a new tracing command line executor.
+   *
+   * @param delegate
+   *          the delegate
+   * @param printer
+   *          the printer, which is call once for every execute method call
+   */
+  public TracingExecutor(
+      IExecutor delegate, Consumer<List<String>> printer) {
+    super(delegate);
+    this.printer = printer;
   }
 
   @Override
   public Result execute(
       List<String> elements, IExecutionEnvironment executionEnvironment,
       Map<String, Object> extraParameterName2ValueMap) {
-    return delegate.execute(elements, executionEnvironment, extraParameterName2ValueMap);
+    printer.accept(elements);
+    return super.execute(elements, executionEnvironment, extraParameterName2ValueMap);
   }
 }

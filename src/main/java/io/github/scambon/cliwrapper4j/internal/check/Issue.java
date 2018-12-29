@@ -60,6 +60,6 @@ public final class Issue {
 
   @Override
   public String toString() {
-    return element + "|" + description;
+    return element + " | " + description;
   }
 }

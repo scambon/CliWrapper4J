@@ -17,8 +17,10 @@ package io.github.scambon.cliwrapper4j.converters;
 
 import io.github.scambon.cliwrapper4j.Result;
 
+import java.util.Map;
+
 /**
- * A result converter that extracts some texts from the output and converts it through a delegate
+ * A result converter that extracts some text from the output and converts it through a delegate
  * converter.
  *
  * @param <O>
@@ -46,30 +48,31 @@ public abstract class AbstractDelegatingOutputExtractingResultConverter<O>
   }
 
   @Override
-  public final O convert(Result in, Class<O> outClass) {
-    String output = selectOutput(in);
-    String relevantString = extractRelevantOutput(output);
-    O convertedValue = delegate.convert(relevantString, outClass);
+  public final O convert(
+      Result in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap) {
+    String sourceText = extractSourceText(in);
+    String relevantString = extractRelevantText(sourceText);
+    O convertedValue = delegate.convert(relevantString, outClass, extraParameterName2ValueMap);
     return convertedValue;
   }
-  
+
   /**
-   * Selects the output.
+   * Extracts the source text where the relevant string will be searched.
    *
    * @param result
    *          the result
-   * @return the output
+   * @return the source text
    */
-  protected String selectOutput(Result result) {
+  protected String extractSourceText(Result result) {
     return result.getOutput();
   }
 
   /**
-   * Extracts the relevant part of the output, to be fed into the delegate converter.s
+   * Extracts the relevant part of the given text, to be fed into the delegate converter.
    *
-   * @param output
-   *          the output
-   * @return the relevant part of the output
+   * @param sourceText
+   *          the source text
+   * @return the relevant part of the source text
    */
-  protected abstract String extractRelevantOutput(String output);
+  protected abstract String extractRelevantText(String sourceText);
 }

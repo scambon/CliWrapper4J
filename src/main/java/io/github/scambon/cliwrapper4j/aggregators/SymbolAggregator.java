@@ -16,17 +16,20 @@
 package io.github.scambon.cliwrapper4j.aggregators;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * An aggregator that uses the parameter as a symbol between the command or option and the flattened
- * value.
+ * An aggregator that uses the parameter as a symbol between the switch and the flattened parameter
+ * values.
  */
 public final class SymbolAggregator implements IAggregator {
 
   @Override
-  public String aggregate(String commandOrOption, String value, String separator) {
-    return Arrays.asList(commandOrOption, value)
+  public String aggregate(
+      String zwitch, String value, String separator,
+      Map<String, Object> extraParameterName2ValueMap) {
+    return Arrays.asList(zwitch, value)
         .stream()
         .filter(element -> element != null && !element.isEmpty())
         .collect(Collectors.joining(separator));

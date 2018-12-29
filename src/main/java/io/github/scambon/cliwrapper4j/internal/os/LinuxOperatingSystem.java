@@ -23,7 +23,7 @@ import java.util.Arrays;
  * The operating system helper that runs on Linux.
  */
 public final class LinuxOperatingSystem extends AbstractCommandBasedOperatingSystem {
-  
+
   /**
    * Instantiates a new Linux operating system.
    */

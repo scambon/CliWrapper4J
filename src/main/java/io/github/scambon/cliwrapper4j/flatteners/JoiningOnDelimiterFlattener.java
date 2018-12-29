@@ -16,14 +16,17 @@
 package io.github.scambon.cliwrapper4j.flatteners;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * A flattener that uses the parameter as a symbol between the values.
+ * A flattener that uses the parameter as a symbol between the parameter values.
  */
 public final class JoiningOnDelimiterFlattener implements IFlattener {
 
   @Override
-  public final String flatten(List<String> parameters, String delimiter) {
-    return String.join(delimiter, parameters);
+  public final String flatten(
+      List<String> parameterValues, String delimiter,
+      Map<String, Object> extraParameterName2ValueMap) {
+    return String.join(delimiter, parameterValues);
   }
 }

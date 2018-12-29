@@ -16,10 +16,10 @@
 package io.github.scambon.cliwrapper4j.example;
 
 import io.github.scambon.cliwrapper4j.Executable;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
+import io.github.scambon.cliwrapper4j.IExecutable;
 
 @Executable("!")
-public interface IUnhandledMethodsCommandLine extends ICommandLineWrapper {
+public interface IUnhandledMethodsCommandLine extends IExecutable {
   default int get42() {
     return 42;
   }

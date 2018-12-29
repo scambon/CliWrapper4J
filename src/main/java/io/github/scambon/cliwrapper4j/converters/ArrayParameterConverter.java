@@ -20,6 +20,7 @@ import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -71,11 +72,13 @@ public final class ArrayParameterConverter<I> implements IConverter<I[], String>
   }
 
   @Override
-  public String convert(I[] in, Class<String> outClass) {
+  public String convert(
+      I[] in, Class<String> outClass, Map<String, Object> extraParameterName2ValueMap) {
     List<String> convertedValues = Arrays.stream(in)
-        .map(element -> elementConverter.convert(element, outClass))
+        .map(element -> elementConverter.convert(element, outClass, extraParameterName2ValueMap))
         .collect(Collectors.toList());
-    String convertedIterable = flattener.flatten(convertedValues, flattenerParameter);
+    String convertedIterable = flattener.flatten(
+        convertedValues, flattenerParameter, extraParameterName2ValueMap);
     return convertedIterable;
   }
 }

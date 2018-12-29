@@ -21,24 +21,24 @@ package io.github.scambon.cliwrapper4j;
  * </p>
  * <p>
  * Your sub-interface must be annotated with @{@link Executable} to provide the executable name.
- * Then, define your methods and annotate them
- * with @{@link Command}, @{@link Option}, @{@link Aggregator} and @{@link Flattener}.
+ * Then, define your methods and annotate them with @{@link Switch}; some of them will be executable
+ * using an additional @{@link ExecuteNow} or @{@link ExecuteLater}.
  * </p>
  * <p>
- * There is no need to implement this interface yourself, use a {@link ICommandLineWrapperFactory}
- * instead. You can still define and implement static methods, default methods or even private
- * methods in your sub-interface.
+ * There is no need to implement this interface yourself, use a {@link IExecutableFactory} instead.
+ * You can still define and implement static methods, default methods or even private methods
+ * (JDK9+) in your sub-interface.
  * </p>
  */
-public interface ICommandLineWrapper {
+public interface IExecutable {
 
   /**
-   * Executes the command line defined by the previous method calls in case of @{@link Command}
-   * later execution.
+   * Executes the command line defined by the previous method calls in case
+   * of @{@link ExecuteLater}.
    *
    * @param <O>
    *          the output type
-   * @return the command line output
+   * @return the command line result
    */
   <O> O execute();
 }

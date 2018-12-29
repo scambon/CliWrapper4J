@@ -15,24 +15,28 @@
 
 package io.github.scambon.cliwrapper4j.internal.handlers;
 
-import io.github.scambon.cliwrapper4j.Option;
+import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.Switch;
 
 import java.lang.reflect.Method;
 
 /**
- * A method handler that works for options.
+ * A method handler that works for @{@link ExecuteLater} methods.
  */
-public class OptionMethodHandler extends AbstractCommandOrOptionWithParametersMethodHandler {
+public class ExecuteLaterSwitchMethodHandler
+    extends AbstractExecuteSwitchMethodHandler {
 
   /**
-   * Instantiates a new option method handler.
+   * Instantiates a new command with parameters method handler.
    *
    * @param method
    *          the method
-   * @param option
-   *          the option
+   * @param executeLater
+   *          the command
    */
-  public OptionMethodHandler(Method method, Option option) {
-    super(method, option.value());
+  public ExecuteLaterSwitchMethodHandler(Method method, Switch zwitch, ExecuteLater executeLater) {
+    super(method, zwitch,
+        (executableNode, extraParameterName2ValueMap) ->
+            executableNode.setExecutionContext(method, executeLater, extraParameterName2ValueMap));
   }
 }

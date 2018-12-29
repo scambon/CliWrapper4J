@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * A command line executor that uses the {@link Process} class.
  */
-public final class ProcessExecutor implements ICommandLineExecutor {
+public final class ProcessExecutor implements IExecutor {
 
   @Override
   public Result execute(
@@ -74,7 +74,7 @@ public final class ProcessExecutor implements ICommandLineExecutor {
    *          the is
    * @return the bytes
    * @throws IOException
--   *           if an I/O exception has occurred
+   *           if an I/O exception has occurred
    */
   private final byte[] readAllBytes(InputStream inputStream) throws IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();

@@ -26,6 +26,9 @@ import java.util.function.Supplier;
 /** A helper method that facilitates some operations on annotations. */
 public final class AnnotationUtils {
 
+  /**
+   * Instantiates a new annotation utils.
+   */
   private AnnotationUtils() {
     // NOP
   }

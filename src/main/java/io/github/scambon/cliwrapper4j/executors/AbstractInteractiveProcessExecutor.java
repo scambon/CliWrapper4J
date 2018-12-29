@@ -16,6 +16,7 @@
 package io.github.scambon.cliwrapper4j.executors;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
+import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.InteractorRunnable.IInteractor;
@@ -29,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A base class that helps implementing interactive command line management.
+ * A base executor that helps implementing interacting with an executable.
  */
-public abstract class AbstractInteractiveProcessExecutor implements ICommandLineExecutor {
+public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
 
   @Override
   public final Result execute(
@@ -60,10 +61,10 @@ public abstract class AbstractInteractiveProcessExecutor implements ICommandLine
   }
 
   /**
-   * Creates the thread to interactor with a specific.
+   * Creates the thread to interact with the executable.
    *
    * @param name
-   *          the thread name (or at last a part of)
+   *          the thread name (or at last a part of it)
    * @param in
    *          the in
    * @param out
@@ -73,7 +74,7 @@ public abstract class AbstractInteractiveProcessExecutor implements ICommandLine
    * @param interactor
    *          the interactor
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    * @return the thread to be started
    */
   protected Thread createInteractorThread(
@@ -93,7 +94,7 @@ public abstract class AbstractInteractiveProcessExecutor implements ICommandLine
    * @param writer
    *          the writer to send some input to the command line, if needed
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    */
   protected abstract void onStandard(String outputChunk, PrintWriter writer,
       Map<String, Object> extraParameterName2ValueMap);
@@ -106,7 +107,7 @@ public abstract class AbstractInteractiveProcessExecutor implements ICommandLine
    * @param outputStream
    *          the output stream
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    */
   protected void onError(String errorChunk, PrintWriter outputStream,
       Map<String, Object> extraParameterName2ValueMap) {
@@ -120,7 +121,7 @@ public abstract class AbstractInteractiveProcessExecutor implements ICommandLine
    * @param returnCode
    *          the return code
    * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
+   *          the {@link Extra} parameter name 2 value map
    * @return the result
    */
   protected abstract Result getResult(

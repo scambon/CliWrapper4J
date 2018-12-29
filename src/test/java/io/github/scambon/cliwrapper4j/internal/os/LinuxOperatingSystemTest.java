@@ -19,9 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
-import io.github.scambon.cliwrapper4j.internal.os.LinuxOperatingSystem;
 
 import java.nio.charset.Charset;
 
@@ -46,7 +45,7 @@ public class LinuxOperatingSystemTest {
 
   @Test
   public void testGetConsoleEncodingFailed() {
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("locale", "-m", "failed");
+    IExecutor executor = MockExecutionHelper.createExecutor("locale", "-m", "failed");
     LinuxOperatingSystem linuxOperatingSystem = new LinuxOperatingSystem();
     assertThrows(CommandLineException.class,
         () -> linuxOperatingSystem.getConsoleEncoding(executor));
@@ -54,7 +53,7 @@ public class LinuxOperatingSystemTest {
 
   @Test
   public void testGetBrokenConsoleEncoding() {
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("locale", "-m", "broken");
+    IExecutor executor = MockExecutionHelper.createExecutor("locale", "-m", "broken");
     LinuxOperatingSystem linuxOperatingSystem = new LinuxOperatingSystem();
     assertThrows(CommandLineException.class,
         () -> linuxOperatingSystem.getConsoleEncoding(executor));

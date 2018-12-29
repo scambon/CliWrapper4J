@@ -16,7 +16,7 @@
 package io.github.scambon.cliwrapper4j;
 
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.internal.CommandLineInvocationHandler;
+import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.IMethodHandler;
 
 import java.lang.reflect.Method;
@@ -25,43 +25,41 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * The standard factory that creates {@link ICommandLineWrapper} sub-interfaces objects using JDK
- * proxies.
+ * The standard factory that creates {@link IExecutable} sub-interfaces objects using JDK proxies.
  *
  * @param <W>
  *          the wrapper type
  */
-public class CommandLineWrapperFactory<W extends ICommandLineWrapper>
-    implements ICommandLineWrapperFactory<W> {
+public class ReflectiveExecutableFactory<W extends IExecutable>
+    implements IExecutableFactory<W> {
 
-  /** The command line wrapper interface. */
-  private final Class<W> commandLineWrapperInterface;
+  /** The executable interface. */
+  private final Class<W> executableInterface;
   /** The method 2 handler map. */
   private final Map<Method, IMethodHandler> method2HandlerMap;
   /** The proxy constructor. */
-  private final Function<CommandLineInvocationHandler<W>, W> proxyConstructor;
+  private final Function<ExecutableHandler<W>, W> proxyConstructor;
 
   /**
-   * Instantiates a new command line wrapper factory.
+   * Instantiates a factory.
    *
-   * @param commandLineWrapperInterface
-   *          the command line wrapper interface
+   * @param executableInterface
+   *          the executable interface
    */
   @SuppressWarnings("unchecked")
-  public CommandLineWrapperFactory(Class<W> commandLineWrapperInterface) {
-    this.commandLineWrapperInterface = commandLineWrapperInterface;
-    this.method2HandlerMap = CommandLineInvocationHandler
-        .createHandlers(commandLineWrapperInterface);
-    ClassLoader classLoader = CommandLineWrapperFactory.class.getClassLoader();
-    Class<?>[] interfaces = new Class<?>[]{commandLineWrapperInterface};
+  public ReflectiveExecutableFactory(Class<W> executableInterface) {
+    this.executableInterface = executableInterface;
+    this.method2HandlerMap = ExecutableHandler.createHandlers(executableInterface);
+    ClassLoader classLoader = ReflectiveExecutableFactory.class.getClassLoader();
+    Class<?>[] interfaces = new Class<?>[]{executableInterface};
     this.proxyConstructor = handler -> (W) Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
 
   @Override
   public W create(IExecutionEnvironment executionEnvironment) {
-    CommandLineInvocationHandler<W> invocationHandler = new CommandLineInvocationHandler<>(
-        commandLineWrapperInterface, method2HandlerMap, executionEnvironment);
-    W proxy = this.proxyConstructor.apply(invocationHandler);
+    ExecutableHandler<W> invocationHandler = new ExecutableHandler<>(
+        executableInterface, method2HandlerMap, executionEnvironment);
+    W proxy = proxyConstructor.apply(invocationHandler);
     return proxy;
   }
 }

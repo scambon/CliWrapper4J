@@ -15,18 +15,23 @@
 
 package io.github.scambon.cliwrapper4j.internal.nodes;
 
+import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefault;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefaultClass;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.CommandLineException;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
+import io.github.scambon.cliwrapper4j.Converter;
+import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.Executor;
+import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
+import io.github.scambon.cliwrapper4j.ReturnCode;
 import io.github.scambon.cliwrapper4j.converters.IConverter;
 import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.ProcessExecutor;
 
 import java.lang.reflect.Method;
@@ -38,19 +43,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * A command line node that works for executables.
+ * A command line node that works for @{@link IExecutable}.
  */
-public class ExecutableNode implements ICommandLineNode {
+public final class ExecutableNode implements ICommandLineNode {
 
   /** The execution environment. */
   private final IExecutionEnvironment executionEnvironment;
   /** The executable. */
   private final List<String> executable;
   /** The command and options. */
-  private final List<CommandOrOptionWithParametersNode> commandAndOptions = new ArrayList<>();
-  
+  private final List<SwitchNode> switchNodes = new ArrayList<>();
+
   /** The executor. */
-  private ICommandLineExecutor executor;
+  private IExecutor executor;
   /** The expected return codes. */
   private List<Integer> expectedReturnCodes;
   /** The result converter. */
@@ -74,65 +79,77 @@ public class ExecutableNode implements ICommandLineNode {
   }
 
   /**
-   * Adds the command or option.
+   * Adds the switch node.
    *
-   * @param commandOrOption
-   *          the command or option
+   * @param zwitch
+   *          the switch
    */
-  public void addCommandOrOption(CommandOrOptionWithParametersNode commandOrOption) {
-    commandAndOptions.add(commandOrOption);
-  }
-  
-  /**
-   * Sets the command to run.
-   *
-   * @param method
-   *          the method
-   * @param command
-   *          the associated command annotation
-   * @param extraParameterName2ValueMap
-   *          the extra parameter name 2 value map
-   */
-  public void setCommand(
-      Method method, Command command,
-      Map<String, Object> extraParameterName2ValueMap) {
-    this.executor = getOrDefaultClass(method, Command.class, Command::executor,
-        ProcessExecutor::new);
-    this.extraParameterName2ValueMap = extraParameterName2ValueMap;
-    this.expectedReturnCodes = Arrays.stream(command.expectedReturnCodes())
-        .boxed()
-        .collect(toList());
-    Class<?> returnType = method.getReturnType();
-    boolean executesOnCommand = executesOnCommand(method);
-    if (executesOnCommand) {
-      this.outType = returnType;
-    } else {
-      this.outType = command.outType();
-    }
-    this.resultConverter = getOrDefaultClass(method, Command.class, Command::converter,
-        ResultConverter::new);
+  public void addSwitchNodes(SwitchNode zwitch) {
+    switchNodes.add(zwitch);
   }
 
   /**
-   * Tells whether to execute with the command.
+   * Sets the execution context.
    *
    * @param method
    *          the method
-   * @return whether to execute with the command, or to wait for the
-   *         {@link ICommandLineWrapper#execute()} call
+   * @param executeNow
+   *          the execute now
+   * @param extraParameterName2ValueMap
+   *          the extra parameter name 2 value map
    */
-  public static boolean executesOnCommand(Method method) {
-    Class<?> returnType = method.getReturnType();
-    Class<?> commandLineWrapperInterface = method.getDeclaringClass();
-    boolean executesOnCommand = !returnType.equals(commandLineWrapperInterface);
-    return executesOnCommand;
+  public void setExecutionContext(
+      Method method, ExecuteNow executeNow,
+      Map<String, Object> extraParameterName2ValueMap) {
+    this.outType = method.getReturnType();
+    setExecutionContext(method, extraParameterName2ValueMap);
+  }
+
+  /**
+   * Sets the execution context.
+   *
+   * @param method
+   *          the method
+   * @param executeLater
+   *          the execute later
+   * @param extraParameterName2ValueMap
+   *          the extra parameter name 2 value map
+   */
+  public void setExecutionContext(
+      Method method, ExecuteLater executeLater,
+      Map<String, Object> extraParameterName2ValueMap) {
+    this.outType = executeLater.value();
+    setExecutionContext(method, extraParameterName2ValueMap);
+  }
+
+  /**
+   * Sets the execution context.
+   *
+   * @param method
+   *          the method
+   * @param extraParameterName2ValueMap
+   *          the extra parameter name 2 value map
+   */
+  @SuppressWarnings("unchecked")
+  private void setExecutionContext(
+      Method method, Map<String, Object> extraParameterName2ValueMap) {
+    this.extraParameterName2ValueMap = extraParameterName2ValueMap;
+    this.executor = getOrDefaultClass(
+        method, Executor.class, Executor::value, ProcessExecutor::new);
+    int[] expectedReturnCodes = getOrDefault(
+        method, ReturnCode.class, ReturnCode::value, () -> new int[]{0});
+    this.expectedReturnCodes = Arrays.stream(expectedReturnCodes)
+        .boxed()
+        .collect(toList());
+    this.resultConverter = (IConverter<Result, ?>) getOrDefaultClass(
+        method, Converter.class, Converter::value, ResultConverter::new);
   }
 
   @Override
   public List<String> flatten() {
     List<String> elements = new ArrayList<>();
     elements.addAll(executable);
-    List<String> children = commandAndOptions.stream()
+    List<String> children = switchNodes.stream()
         .map(ICommandLineNode::flatten)
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
@@ -141,7 +158,7 @@ public class ExecutableNode implements ICommandLineNode {
   }
 
   /**
-   * Executes the command and the post-processing. 
+   * Executes the command and the post-processing.
    *
    * @return the result
    */
@@ -152,7 +169,7 @@ public class ExecutableNode implements ICommandLineNode {
     Object convertedResult = runPostProcessing(result);
     return convertedResult;
   }
-  
+
   /**
    * Runs the post-processing.
    *
@@ -163,7 +180,8 @@ public class ExecutableNode implements ICommandLineNode {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private Object runPostProcessing(Result result) {
     validateIfNeeded(result);
-    Object convertedResult = resultConverter.convert(result, (Class) outType);
+    Object convertedResult = resultConverter.convert(
+        result, (Class) outType, extraParameterName2ValueMap);
     return convertedResult;
   }
 

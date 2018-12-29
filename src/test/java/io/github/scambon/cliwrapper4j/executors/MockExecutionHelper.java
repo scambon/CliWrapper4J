@@ -28,12 +28,12 @@ public final class MockExecutionHelper {
     // NOP
   }
 
-  public static ICommandLineExecutor createExecutor(String... filenameElements) {
+  public static IExecutor createExecutor(String... filenameElements) {
     Result result = createResult(filenameElements);
-    ICommandLineExecutor executor = (elements, environment, extra) -> result;
+    IExecutor executor = (elements, environment, extra) -> result;
     return executor;
   }
-  
+
   public static MockExecutionEnvironment createExecutionEnvironment(String... filenameElements) {
     Result result = createResult(filenameElements);
     MockExecutionEnvironment environment = new MockExecutionEnvironment(result);

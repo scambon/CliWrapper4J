@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Map;
 
 public class MockExecutionEnvironment extends DefaultExecutionEnvironment {
-  
+
   private final Result result;
-  private ICommandLineExecutor actualExecutor;
+  private IExecutor actualExecutor;
   private List<String> actualElements;
   private Map<String, Object> actualExtraParameterName2ValueMap;
-  
+
   public MockExecutionEnvironment(Result result) {
     this.result = result;
   }
@@ -46,7 +46,7 @@ public class MockExecutionEnvironment extends DefaultExecutionEnvironment {
 
   @Override
   public Result run(
-      ICommandLineExecutor executor, List<String> elements,
+      IExecutor executor, List<String> elements,
       Map<String, Object> extraParameterName2ValueMap) {
     this.actualExecutor = executor;
     this.actualElements = elements;
@@ -54,14 +54,14 @@ public class MockExecutionEnvironment extends DefaultExecutionEnvironment {
     return result;
   }
 
-  public void checkExecutor(Class<? extends ICommandLineExecutor> expectedExecutorClazz) {
+  public void checkExecutor(Class<? extends IExecutor> expectedExecutorClazz) {
     assertTrue(expectedExecutorClazz.isInstance(actualExecutor));
   }
-  
+
   public void checkElements(String... expectedElements) {
     assertIterableEquals(asList(expectedElements), actualElements);
   }
-  
+
   public void checkExtraParameters(Map<String, Object> expectedExtraParameterName2ValueMap) {
     assertEquals(expectedExtraParameterName2ValueMap, actualExtraParameterName2ValueMap);
   }

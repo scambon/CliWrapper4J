@@ -19,9 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
-import io.github.scambon.cliwrapper4j.executors.ICommandLineExecutor;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
-import io.github.scambon.cliwrapper4j.internal.os.WindowsOperatingSystem;
 
 import java.nio.charset.Charset;
 
@@ -46,7 +45,7 @@ public class WindowsOperatingSystemTest {
 
   @Test
   public void testGetConsoleEncodingFailed() {
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("chcp.com", "failed");
+    IExecutor executor = MockExecutionHelper.createExecutor("chcp.com", "failed");
     WindowsOperatingSystem windowsOperatingSystem = new WindowsOperatingSystem();
     assertThrows(CommandLineException.class,
         () -> windowsOperatingSystem.getConsoleEncoding(executor));
@@ -54,7 +53,7 @@ public class WindowsOperatingSystemTest {
 
   @Test
   public void testGetBrokenConsoleEncoding() {
-    ICommandLineExecutor executor = MockExecutionHelper.createExecutor("chcp.com", "broken");
+    IExecutor executor = MockExecutionHelper.createExecutor("chcp.com", "broken");
     WindowsOperatingSystem windowsOperatingSystem = new WindowsOperatingSystem();
     assertThrows(CommandLineException.class,
         () -> windowsOperatingSystem.getConsoleEncoding(executor));

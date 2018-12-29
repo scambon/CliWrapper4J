@@ -27,7 +27,10 @@ import java.lang.annotation.Target;
 /**
  * An annotation that describes how to flatten a method parameter values, using the
  * {@link #flattener()} class configured with the {@link #value()} as its parameter. This should
- * only defined along with a @{@link Command} or @{@link Option} annotation.
+ * only defined along with a @{@link Switch} annotation.
+ * 
+ * @see Switch
+ * @see IFlattener
  */
 @Retention(RUNTIME)
 @Target(METHOD)

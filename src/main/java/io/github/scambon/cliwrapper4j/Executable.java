@@ -22,16 +22,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * An annotation that provides the name of the executable to run. This must be placed on the
- * {@link ICommandLineWrapper} sub-interface.
+ * An annotation that provides the name of the executable to run. This must be placed on an
+ * {@link IExecutable} sub-interface.
+ * 
+ * @see IExecutable
  */
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface Executable {
 
   /**
-   * The name of the executable.
-   * This can be multi-part. 
+   * The name of the executable. This can be multi-part.
    *
    * @return the name of the executable, which must be non-empty
    */

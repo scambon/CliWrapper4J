@@ -41,21 +41,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-public class CommandLineWrapperFactoryTest {
+public class ReflectiveExecutableFactoryTest {
 
-  private static ICommandLineWrapperFactory<IJavaCommandLine> javaFactory;
-  private static ICommandLineWrapperFactory<IGitCommandLine> gitFactory;
-  private static ICommandLineWrapperFactory<IUnhandledMethodsCommandLine> unhandledFactory;
-  private static ICommandLineWrapperFactory<IInterractiveHelloCommandLine> interactiveFactory;
-  private static ICommandLineWrapperFactory<ISystemVariableCommandLine> systemVariableFactory;
+  private static IExecutableFactory<IJavaCommandLine> javaFactory;
+  private static IExecutableFactory<IGitCommandLine> gitFactory;
+  private static IExecutableFactory<IUnhandledMethodsCommandLine> unhandledFactory;
+  private static IExecutableFactory<IInterractiveHelloCommandLine> interactiveFactory;
+  private static IExecutableFactory<ISystemVariableCommandLine> systemVariableFactory;
 
   @BeforeAll
   public static void setUp() {
-    javaFactory = new CommandLineWrapperFactory<>(IJavaCommandLine.class);
-    gitFactory = new CommandLineWrapperFactory<>(IGitCommandLine.class);
-    unhandledFactory = new CommandLineWrapperFactory<>(IUnhandledMethodsCommandLine.class);
-    interactiveFactory = new CommandLineWrapperFactory<>(IInterractiveHelloCommandLine.class);
-    systemVariableFactory = new CommandLineWrapperFactory<>(ISystemVariableCommandLine.class);
+    javaFactory = new ReflectiveExecutableFactory<>(IJavaCommandLine.class);
+    gitFactory = new ReflectiveExecutableFactory<>(IGitCommandLine.class);
+    unhandledFactory = new ReflectiveExecutableFactory<>(IUnhandledMethodsCommandLine.class);
+    interactiveFactory = new ReflectiveExecutableFactory<>(IInterractiveHelloCommandLine.class);
+    systemVariableFactory = new ReflectiveExecutableFactory<>(ISystemVariableCommandLine.class);
   }
 
   @Test
@@ -202,7 +202,7 @@ public class CommandLineWrapperFactoryTest {
     // The duration is a maximum, it can take 1s less
     assertTrue(deltaNanos >= 2 * (durationSecond - 1) * 1_000_000);
   }
-  
+
   @Test
   @EnabledOnOs(OS.WINDOWS)
   public void testSystemVariablePassing() {

@@ -19,8 +19,8 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * A converter that handles {@link File}s and {@link Path}s by getting the path as is, without
- * resolving or relativization.
+ * A parameter converter that handles {@link File}s and {@link Path}s by getting the path as is,
+ * without resolving or relativization.
  */
 public final class ShortFileParameterConverter extends CompositeConverter<Object, String> {
 
@@ -30,8 +30,9 @@ public final class ShortFileParameterConverter extends CompositeConverter<Object
   public ShortFileParameterConverter() {
     super(
         new LambdaConverter<>(File.class, String.class, File::getPath),
-        new LambdaConverter<>(Path.class, String.class, path -> path.toFile()
-            .getPath()),
+        new LambdaConverter<>(Path.class, String.class,
+            path -> path.toFile()
+                .getPath()),
         new StringQuotedIfNeededConverter());
   }
 }

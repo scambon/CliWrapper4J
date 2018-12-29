@@ -15,21 +15,29 @@
 
 package io.github.scambon.cliwrapper4j.aggregators;
 
+import io.github.scambon.cliwrapper4j.Extra;
+
+import java.util.Map;
+
 /**
- * An interface that aggregates a command or option with its flattened value.
+ * An interface that aggregates a switch with its flattened parameter values.
  */
 public interface IAggregator {
 
   /**
-   * Aggregates a command or option with its flattened value.
+   * Aggregates a switch with its flattened parameter values.
    *
-   * @param commandOrOption
-   *          the command or option
-   * @param value
-   *          the flattened value
-   * @param parameter
-   *          the parameter, interpretation depends on the implementation
+   * @param zwitch
+   *          the switch
+   * @param flattenedParameterValues
+   *          the flattened parameter values
+   * @param aggregatorParameter
+   *          the aggregagtor parameter, interpretation depends on the implementation
+   * @param extraParameterName2ValueMap
+   *          the {@link Extra} parameter name 2 value map
    * @return the aggregated string
    */
-  String aggregate(String commandOrOption, String value, String parameter);
+  String aggregate(
+      String zwitch, String flattenedParameterValues, String aggregatorParameter,
+      Map<String, Object> extraParameterName2ValueMap);
 }

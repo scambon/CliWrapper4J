@@ -69,7 +69,7 @@ public final class Diagnostic {
    */
   public void check() {
     if (!issues.isEmpty()) {
-      String message = "Some issues were found in class '" + clazz + "'";
+      String message = "Some issues were found in interface '" + clazz + "'";
       String issuesString = issues.stream()
           .map(Object::toString)
           .map(string -> "\t" + string)

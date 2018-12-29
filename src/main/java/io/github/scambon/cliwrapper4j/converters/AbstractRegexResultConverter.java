@@ -47,7 +47,7 @@ public abstract class AbstractRegexResultConverter<O>
   }
 
   @Override
-  protected final String extractRelevantOutput(String output) {
+  protected final String extractRelevantText(String output) {
     Matcher matcher = pattern.matcher(output);
     if (matcher.find()) {
       return matcher.group(1);

@@ -19,12 +19,12 @@ import io.github.scambon.cliwrapper4j.Result;
 
 /**
  * A converter that provides the base {@link Result} or its properties. The conversion uses the
- * following rules:
+ * following rules, based on the output type:
  * <ul>
  * <li>{@link Result} returns the same {@link Result}</li>
- * <li>{@link String} is bound to the method output stream contents</li>
- * <li>{@link int} and {@link Integer} are bound to the return code</li>
- * <li>{@link void} and {@link Void} provide no result</li>
+ * <li>{@link String} returns to the method output stream contents</li>
+ * <li>{@link int} and {@link Integer} returns to the return code</li>
+ * <li>{@link void} and {@link Void} returns nothing</li>
  * </ul>
  */
 public final class ResultConverter extends CompositeConverter<Result, Object> {

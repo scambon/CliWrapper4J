@@ -15,24 +15,26 @@
 
 package io.github.scambon.cliwrapper4j.example;
 
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
-import io.github.scambon.cliwrapper4j.Option;
-import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorConverter;
+import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.IExecutable;
+import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorParameterConverter;
 
 import java.nio.file.Path;
 
 @Executable("git")
-public interface IGitCommandLine extends ICommandLineWrapper {
+public interface IGitCommandLine extends IExecutable {
 
-  @Command(value = "commit", outType = int.class)
+  @Switch("commit")
+  @ExecuteLater(value = int.class)
   public IGitCommandLine commit();
 
-  @Option("-m")
+  @Switch("-m")
   public IGitCommandLine message(String message);
 
-  @Option("")
-  public IGitCommandLine files(@Converter(FilesWithSpaceSeparatorConverter.class) Path... paths);
+  @Switch("")
+  public IGitCommandLine files(
+      @Converter(FilesWithSpaceSeparatorParameterConverter.class) Path... paths);
 }

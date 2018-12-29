@@ -21,15 +21,18 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * A converter that takes an array or an {@link Iterable} of {@link File}s or {@link Path}s and
- * returns a string where they are joined with a space.
+ * A parameter converter that takes an array or an {@link Iterable} of {@link File}s or
+ * {@link Path}s and returns a string where they are joined with a space.
  */
-public final class FilesWithSpaceSeparatorConverter extends MultipleParameterConverter {
+public final class FilesWithSpaceSeparatorParameterConverter extends MultipleParameterConverter {
 
   /**
    * Instantiates a new files with space separator converter.
    */
-  public FilesWithSpaceSeparatorConverter() {
-    super(Object.class, new ShortFileParameterConverter(), new JoiningOnDelimiterFlattener(), " ");
+  public FilesWithSpaceSeparatorParameterConverter() {
+    super(Object.class,
+        new ShortFileParameterConverter(),
+        new JoiningOnDelimiterFlattener(),
+        " ");
   }
 }

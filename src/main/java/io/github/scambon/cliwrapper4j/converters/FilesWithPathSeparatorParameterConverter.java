@@ -21,15 +21,15 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * A converter that takes an array or an {@link Iterable} of {@link File}s or {@link Path}s and
- * returns a string where they are joined with the system path separator.
+ * A parameter converter that takes an array or an {@link Iterable} of {@link File}s or
+ * {@link Path}s and returns a string where they are joined with the system path separator.
  */
-public final class FilesWithPathSeparatorConverter extends MultipleParameterConverter {
+public final class FilesWithPathSeparatorParameterConverter extends MultipleParameterConverter {
 
   /**
    * Instantiates a new files with path separator converter.
    */
-  public FilesWithPathSeparatorConverter() {
+  public FilesWithPathSeparatorParameterConverter() {
     super(Object.class,
         new ShortFileParameterConverter(),
         new JoiningOnDelimiterFlattener(),

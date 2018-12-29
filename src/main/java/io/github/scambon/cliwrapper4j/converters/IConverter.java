@@ -15,8 +15,12 @@
 
 package io.github.scambon.cliwrapper4j.converters;
 
+import io.github.scambon.cliwrapper4j.Extra;
+
+import java.util.Map;
+
 /**
- * An interface to convert from one type to anther.
+ * An interface that converts from one type to another.
  *
  * @param <I>
  *          the input type
@@ -27,7 +31,7 @@ public interface IConverter<I, O> {
 
   /**
    * Tests whether this converter can convert from the given input type to the given output type.
-   * This method is to be called before {@link #convert(Object, Class)}.
+   * This method is to be called before {@link #convert(Object, Class, Map)}.
    *
    * @param inClass
    *          the input class
@@ -45,7 +49,9 @@ public interface IConverter<I, O> {
    *          the element to convert
    * @param outClass
    *          the output type
+   * @param extraParameterName2ValueMap
+   *          the {@link Extra} parameter name 2 value map
    * @return the converted value
    */
-  O convert(I in, Class<O> outClass);
+  O convert(I in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap);
 }

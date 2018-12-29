@@ -15,15 +15,19 @@
 
 package io.github.scambon.cliwrapper4j.example;
 
-import io.github.scambon.cliwrapper4j.Command;
 import io.github.scambon.cliwrapper4j.Executable;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
+import io.github.scambon.cliwrapper4j.Executor;
 import io.github.scambon.cliwrapper4j.Extra;
-import io.github.scambon.cliwrapper4j.ICommandLineWrapper;
+import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
+import io.github.scambon.cliwrapper4j.Switch;
 
 @Executable({"cmd", "/C", "hello"})
-public interface IInterractiveHelloCommandLine extends ICommandLineWrapper {
+public interface IInterractiveHelloCommandLine extends IExecutable {
 
-  @Command(value = "", executor = InterractiveHelloProcessExecutor.class)
+  @Switch("")
+  @ExecuteNow
+  @Executor(InterractiveHelloProcessExecutor.class)
   Result hello(int waitingTime, @Extra("name") String name);
 }
