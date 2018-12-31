@@ -52,6 +52,16 @@
 		<system>Travis CI</system>
 		<url>https://travis-ci.com/scambon/CliWrapper4J</url>
 	</ciManagement>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<!-- Dependency versions -->
@@ -59,9 +69,11 @@
 
 		<!-- Plugin versions -->
 		<git.version>2.2.5</git.version>
+		<gpg.version>1.6</gpg.version>
 		<jar.version>3.1.1</jar.version>
 		<jacoco.version>0.8.2</jacoco.version>
 		<javadoc.version>3.0.1</javadoc.version>
+		<nexus-staging.version>1.6.8</nexus-staging.version>
 		<sonar.version>3.5.0.1254</sonar.version>
 		<source.version>3.0.1</source.version>
 		<surefire.version>2.22.1</surefire.version>
@@ -87,6 +99,7 @@
 
 	<build>
 		<plugins>
+			<!-- Get the commit hash -->
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
@@ -101,6 +114,7 @@
 				</executions>
 			</plugin>
 
+			<!-- Generate the jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -109,12 +123,14 @@
 					<archive>
 						<manifestEntries>
 							<Automatic-Module-Name>${jpms.module.automatic.name}</Automatic-Module-Name>
+							<!-- Include the Git commit hash in the manifest -->
 							<Git-Commit-Id>${git.commit.id}</Git-Commit-Id>
 						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
 
+			<!-- Monitor coverage -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -129,6 +145,7 @@
 				</executions>
 			</plugin>
 
+			<!-- Run the tests -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -139,6 +156,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Generate the source jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -153,6 +171,7 @@
 				</executions>
 			</plugin>
 
+			<!-- Generate JavaDoc -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -169,16 +188,58 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
 
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.sonarsource.scanner.maven</groupId>
-					<artifactId>sonar-maven-plugin</artifactId>
-					<version>${sonar.version}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+			<!-- Sign artifacts -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>${gpg.version}</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<!-- Monitor qualimetry -->
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>${sonar.version}</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sonar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Release to Maven central -->
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>${nexus-staging.version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
