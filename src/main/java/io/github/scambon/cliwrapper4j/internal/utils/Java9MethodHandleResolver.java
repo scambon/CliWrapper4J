@@ -36,7 +36,6 @@ final class Java9MethodHandleResolver implements IMethodHandleResolver {
   public static Lookup privateLookupIn(Class<?> targetClass, Lookup lookup)
       throws ReflectiveOperationException {
     Method method = MethodHandles.class.getMethod("privateLookupIn", Class.class, Lookup.class);
-    Lookup privateLookupIn = (Lookup) method.invoke(null, targetClass, lookup);
-    return privateLookupIn;
+    return (Lookup) method.invoke(null, targetClass, lookup);
   }
 }

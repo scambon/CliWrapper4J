@@ -59,7 +59,6 @@ public class ReflectiveExecutableFactory<W extends IExecutable>
   public W create(IExecutionEnvironment executionEnvironment) {
     ExecutableHandler<W> invocationHandler = new ExecutableHandler<>(
         executableInterface, method2HandlerMap, executionEnvironment);
-    W proxy = proxyConstructor.apply(invocationHandler);
-    return proxy;
+    return proxyConstructor.apply(invocationHandler);
   }
 }

@@ -37,6 +37,7 @@ public class TracingExecutor extends AbstractDelegatingExecutor {
    * @param delegate
    *          the delegate
    */
+  @SuppressWarnings("squid:S106")
   public TracingExecutor(IExecutor delegate) {
     this(delegate, System.out::println);
   }

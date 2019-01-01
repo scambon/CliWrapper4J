@@ -105,8 +105,7 @@ public final class AnnotationUtils {
     Class<? extends V> classValue = getter.apply(annotation);
     try {
       Constructor<? extends V> constructor = classValue.getConstructor();
-      V value = constructor.newInstance();
-      return value;
+      return constructor.newInstance();
     } catch (ReflectiveOperationException exception) {
       throw new CommandLineException(exception);
     }

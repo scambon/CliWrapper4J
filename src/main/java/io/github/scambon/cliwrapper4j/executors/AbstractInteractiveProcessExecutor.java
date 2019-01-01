@@ -35,6 +35,7 @@ import java.util.Map;
 public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
 
   @Override
+  @SuppressWarnings("squid:S4721")
   public final Result execute(
       List<String> elements, IExecutionEnvironment environment,
       Map<String, Object> extraParameterName2ValueMap) {
@@ -53,10 +54,12 @@ public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
           "Error", error, out, encoding, this::onError, extraParameterName2ValueMap);
       errorStreamGobblerThread.start();
       int returnCode = process.waitFor();
-      Result result = getResult(returnCode, extraParameterName2ValueMap);
-      return result;
-    } catch (IOException | InterruptedException exception) {
-      throw new CommandLineException(exception);
+      return getResult(returnCode, extraParameterName2ValueMap);
+    } catch (InterruptedException interruptedException) {
+      Thread.currentThread().interrupt();
+      throw new CommandLineException(interruptedException);
+    } catch (IOException ioException) {
+      throw new CommandLineException(ioException);
     }
   }
 
@@ -82,8 +85,7 @@ public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
       IInteractor interactor, Map<String, Object> extraParameterName2ValueMap) {
     InteractorRunnable interactorRunnable = new InteractorRunnable(
         in, out, encoding, interactor, extraParameterName2ValueMap);
-    Thread interactorThread = new Thread(interactorRunnable, name + " interactor");
-    return interactorThread;
+    return new Thread(interactorRunnable, name + " interactor");
   }
 
   /**

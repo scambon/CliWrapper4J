@@ -24,12 +24,13 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * An interface that helps in interacting with the operating system.
+ * A base class that helps in interacting with the operating system.
  */
-public interface IOperatingSystem {
+public abstract class AbstractOperatingSystem {
 
   /** The operating system factories. */
-  static final List<IOperatingSystem> OPERATING_SYSTEMS = asList(
+  @SuppressWarnings("squid:S2390")
+  private static final List<AbstractOperatingSystem> OPERATING_SYSTEMS = asList(
       new LinuxOperatingSystem(),
       new WindowsOperatingSystem())
           .stream()
@@ -37,20 +38,11 @@ public interface IOperatingSystem {
           .collect(toList());
 
   /**
-   * Checks if this operating system is the current one.
-   *
-   * @param osName
-   *          the operating system name
-   * @return this operating system is the current one
-   */
-  boolean isCase(String osName);
-
-  /**
    * Gets the operating system using the <code>os.name</code> property.
    * 
    * @return the operating system
    */
-  static IOperatingSystem get() {
+  public static AbstractOperatingSystem get() {
     String osName = System.getProperty("os.name")
         .toLowerCase();
     return get(osName);
@@ -63,19 +55,27 @@ public interface IOperatingSystem {
    *          the OS name
    * @return the operating system
    */
-  static IOperatingSystem get(String osName) {
-    IOperatingSystem operatingSystem = OPERATING_SYSTEMS.stream()
+  public static AbstractOperatingSystem get(String osName) {
+    return OPERATING_SYSTEMS.stream()
         .filter(os -> os.isCase(osName))
         .findFirst()
         .orElseThrow(() -> new CommandLineException(
             "Unhandled operating system  '" + osName + "'"));
-    return operatingSystem;
   }
+
+  /**
+   * Checks if this operating system is the current one.
+   *
+   * @param osName
+   *          the operating system name
+   * @return this operating system is the current one
+   */
+  protected abstract boolean isCase(String osName);
 
   /**
    * Gets the console encoding.
    *
    * @return the console encoding
    */
-  Charset getConsoleEncoding();
+  public abstract Charset getConsoleEncoding();
 }

@@ -37,6 +37,7 @@ public class ExecuteLaterSwitchMethodHandler
   public ExecuteLaterSwitchMethodHandler(Method method, Switch zwitch, ExecuteLater executeLater) {
     super(method, zwitch,
         (executableNode, extraParameterName2ValueMap) ->
-            executableNode.setExecutionContext(method, executeLater, extraParameterName2ValueMap));
+            executableNode.setExecuteLaterContext(
+                method, executeLater, extraParameterName2ValueMap));
   }
 }

@@ -41,6 +41,7 @@ public abstract class AbstractRegexResultConverter<O>
    * @param regex
    *          the regex
    */
+  @SuppressWarnings("squid:S4784")
   protected AbstractRegexResultConverter(IConverter<String, O> delegate, String regex) {
     super(delegate);
     this.pattern = Pattern.compile(regex);

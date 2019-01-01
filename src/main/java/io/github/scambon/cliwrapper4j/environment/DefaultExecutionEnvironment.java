@@ -17,7 +17,7 @@ package io.github.scambon.cliwrapper4j.environment;
 
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
-import io.github.scambon.cliwrapper4j.internal.os.IOperatingSystem;
+import io.github.scambon.cliwrapper4j.internal.os.AbstractOperatingSystem;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -74,7 +74,7 @@ public class DefaultExecutionEnvironment implements IExecutionEnvironment {
   @Override
   public Charset getEncoding() {
     if (encoding == null) {
-      IOperatingSystem operatingSystem = IOperatingSystem.get();
+      AbstractOperatingSystem operatingSystem = AbstractOperatingSystem.get();
       encoding = operatingSystem.getConsoleEncoding();
     }
     return encoding;

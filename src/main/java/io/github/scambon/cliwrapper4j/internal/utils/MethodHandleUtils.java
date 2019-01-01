@@ -40,6 +40,15 @@ public final class MethodHandleUtils {
       RESOLVER = new Java9MethodHandleResolver();
     }
   }
+  
+  /**
+   * Instantiates a new method handle utils.
+   */
+  private MethodHandleUtils() {
+    // Nothing
+  }
+
+
 
   /**
    * Gets the method handle.
@@ -52,7 +61,6 @@ public final class MethodHandleUtils {
    */
   public static MethodHandle getMethodHandle(Method method) throws ReflectiveOperationException {
     Class<?> clazz = method.getDeclaringClass();
-    MethodHandle methodHandle = RESOLVER.resolveMethod(clazz, method);
-    return methodHandle;
+    return RESOLVER.resolveMethod(clazz, method);
   }
 }

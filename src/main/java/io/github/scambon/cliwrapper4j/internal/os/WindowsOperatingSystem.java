@@ -33,9 +33,9 @@ public final class WindowsOperatingSystem extends AbstractCommandBasedOperatingS
   }
 
   @Override
+  @SuppressWarnings("squid:S4784")
   protected String extractSystemName(Result commandResult) {
     String output = commandResult.getOutput();
-    String codePageName = output.replaceAll("[^\\d]", "");
-    return codePageName;
+    return output.replaceAll("[^\\d]", "");
   }
 }

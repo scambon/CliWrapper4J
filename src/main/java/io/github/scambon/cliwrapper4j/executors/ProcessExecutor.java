@@ -32,6 +32,7 @@ import java.util.Map;
 public final class ProcessExecutor implements IExecutor {
 
   @Override
+  @SuppressWarnings("squid:S4721")
   public Result execute(
       List<String> elements, IExecutionEnvironment environment,
       Map<String, Object> extraParameterName2ValueMap) {
@@ -43,10 +44,12 @@ public final class ProcessExecutor implements IExecutor {
       Charset encoding = environment.getEncoding();
       String output = readInputStream(process.getInputStream(), encoding);
       String error = readInputStream(process.getErrorStream(), encoding);
-      Result result = new Result(output, error, returnCode);
-      return result;
-    } catch (InterruptedException | IOException exception) {
-      throw new CommandLineException(exception);
+      return new Result(output, error, returnCode);
+    } catch (InterruptedException interruptedException) {
+      Thread.currentThread().interrupt();
+      throw new CommandLineException(interruptedException);
+    } catch (IOException ioException) {
+      throw new CommandLineException(ioException);
     }
   }
 
@@ -63,8 +66,7 @@ public final class ProcessExecutor implements IExecutor {
    */
   private String readInputStream(InputStream inputStream, Charset charset) throws IOException {
     byte[] bytes = readAllBytes(inputStream);
-    String string = new String(bytes, charset);
-    return string;
+    return new String(bytes, charset);
   }
 
   /**

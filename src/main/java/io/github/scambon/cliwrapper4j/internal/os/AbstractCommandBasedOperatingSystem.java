@@ -34,7 +34,7 @@ import java.util.Properties;
 /**
  * The operating system helper that uses commands to obtain informations.
  */
-public abstract class AbstractCommandBasedOperatingSystem implements IOperatingSystem {
+public abstract class AbstractCommandBasedOperatingSystem extends AbstractOperatingSystem {
 
   /** The operating system name marker. */
   private String operatingSystemNameMarker;
@@ -90,8 +90,7 @@ public abstract class AbstractCommandBasedOperatingSystem implements IOperatingS
     }
     String systemName = extractSystemName(commandResult);
     String charsetName = systemToCharsetName(systemName);
-    Charset consoleEncoding = Charset.forName(charsetName);
-    return consoleEncoding;
+    return Charset.forName(charsetName);
   }
 
   /**

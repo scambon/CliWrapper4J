@@ -33,9 +33,9 @@ public final class LinuxOperatingSystem extends AbstractCommandBasedOperatingSys
   }
 
   @Override
+  @SuppressWarnings("squid:S4784")
   protected String extractSystemName(Result commandResult) {
     String output = commandResult.getOutput();
-    String charmapName = output.replaceAll("[\r\n]", "");
-    return charmapName;
+    return output.replaceAll("[\r\n]", "");
   }
 }

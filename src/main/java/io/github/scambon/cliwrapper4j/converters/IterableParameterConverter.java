@@ -74,8 +74,6 @@ public final class IterableParameterConverter<I> implements IConverter<Iterable<
     List<String> convertedValues = StreamSupport.stream(spliterator, false)
         .map(element -> elementConverter.convert(element, outClass, extraParameterName2ValueMap))
         .collect(Collectors.toList());
-    String convertedIterable = flattener.flatten(convertedValues, flattenerParameter,
-        extraParameterName2ValueMap);
-    return convertedIterable;
+    return flattener.flatten(convertedValues, flattenerParameter, extraParameterName2ValueMap);
   }
 }

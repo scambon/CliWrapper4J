@@ -18,6 +18,7 @@ final class Java8MethodHandleResolver implements IMethodHandleResolver {
   /**
    * Instantiates a new java 8 method handle resolver.
    */
+  @SuppressWarnings("squid:S3011")
   public Java8MethodHandleResolver() {
     try {
       lookupConstructor = Lookup.class.getDeclaredConstructor(Class.class);

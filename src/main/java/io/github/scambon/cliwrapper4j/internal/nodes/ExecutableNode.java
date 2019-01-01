@@ -23,7 +23,6 @@ import static java.util.stream.Collectors.toList;
 import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.ExecuteLater;
-import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.Executor;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
@@ -89,24 +88,21 @@ public final class ExecutableNode implements ICommandLineNode {
   }
 
   /**
-   * Sets the execution context.
+   * Sets the execute now context.
    *
    * @param method
    *          the method
-   * @param executeNow
-   *          the execute now
    * @param extraParameterName2ValueMap
    *          the extra parameter name 2 value map
    */
-  public void setExecutionContext(
-      Method method, ExecuteNow executeNow,
-      Map<String, Object> extraParameterName2ValueMap) {
+  public void setExecuteNowContext(
+      Method method, Map<String, Object> extraParameterName2ValueMap) {
     this.outType = method.getReturnType();
     setExecutionContext(method, extraParameterName2ValueMap);
   }
 
   /**
-   * Sets the execution context.
+   * Sets the execute later context.
    *
    * @param method
    *          the method
@@ -115,7 +111,7 @@ public final class ExecutableNode implements ICommandLineNode {
    * @param extraParameterName2ValueMap
    *          the extra parameter name 2 value map
    */
-  public void setExecutionContext(
+  public void setExecuteLaterContext(
       Method method, ExecuteLater executeLater,
       Map<String, Object> extraParameterName2ValueMap) {
     this.outType = executeLater.value();
@@ -136,9 +132,9 @@ public final class ExecutableNode implements ICommandLineNode {
     this.extraParameterName2ValueMap = extraParameterName2ValueMap;
     this.executor = getOrDefaultClass(
         method, Executor.class, Executor::value, ProcessExecutor::new);
-    int[] expectedReturnCodes = getOrDefault(
+    int[] expectedReturnCodeArray = getOrDefault(
         method, ReturnCode.class, ReturnCode::value, () -> new int[]{0});
-    this.expectedReturnCodes = Arrays.stream(expectedReturnCodes)
+    this.expectedReturnCodes = Arrays.stream(expectedReturnCodeArray)
         .boxed()
         .collect(toList());
     this.resultConverter = (IConverter<Result, ?>) getOrDefaultClass(
@@ -166,8 +162,7 @@ public final class ExecutableNode implements ICommandLineNode {
     List<String> commandLineElements = flatten();
     Result result = executionEnvironment.run(
         executor, commandLineElements, extraParameterName2ValueMap);
-    Object convertedResult = runPostProcessing(result);
-    return convertedResult;
+    return runPostProcessing(result);
   }
 
   /**
@@ -180,9 +175,7 @@ public final class ExecutableNode implements ICommandLineNode {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private Object runPostProcessing(Result result) {
     validateIfNeeded(result);
-    Object convertedResult = resultConverter.convert(
-        result, (Class) outType, extraParameterName2ValueMap);
-    return convertedResult;
+    return resultConverter.convert(result, (Class) outType, extraParameterName2ValueMap);
   }
 
   /**
@@ -194,11 +187,10 @@ public final class ExecutableNode implements ICommandLineNode {
   private void validateIfNeeded(Result result) {
     if (!expectedReturnCodes.isEmpty()) {
       int returnCode = result.getReturnCode();
-      expectedReturnCodes.stream()
-          .filter(expectedReturnCode -> returnCode == expectedReturnCode)
-          .findAny()
-          .orElseThrow(() -> new CommandLineException("Finished with code '" + returnCode
-              + "' but expected it in '" + expectedReturnCodes + "'"));
+      if (!expectedReturnCodes.contains(returnCode)) {
+        throw new CommandLineException("Finished with code '" + returnCode
+            + "' but expected it in '" + expectedReturnCodes + "'");
+      }
     }
   }
 }

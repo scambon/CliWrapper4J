@@ -54,7 +54,7 @@ public final class ExecutableHandler<W extends IExecutable>
     try {
       EXECUTE_METHOD = IExecutable.class.getMethod("execute");
     } catch (NoSuchMethodException | SecurityException exception) {
-      throw new RuntimeException(exception);
+      throw new CommandLineException(exception);
     }
   }
 

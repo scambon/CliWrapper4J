@@ -39,6 +39,7 @@ import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -82,7 +83,7 @@ public final class ExecutableSubInterfaceChecker {
     checkExecutableAnnotation(executableInterface, diagnostic);
     Method[] methods = executableInterface.getDeclaredMethods();
     for (Method method : methods) {
-      checkMethod(executableInterface, method, diagnostic);
+      checkMethod(method, diagnostic);
     }
     return diagnostic;
   }
@@ -113,16 +114,12 @@ public final class ExecutableSubInterfaceChecker {
   /**
    * Checks a single method.
    *
-   * @param executableInterface
-   *          the executable interface
    * @param method
    *          the method
    * @param diagnostic
    *          the diagnostic
    */
-  private void checkMethod(
-      Class<? extends IExecutable> executableInterface, Method method,
-      Diagnostic diagnostic) {
+  private void checkMethod(Method method, Diagnostic diagnostic) {
     // No need to check the execute method or synthetic methods
     if (ExecutableHandler.EXECUTE_METHOD.equals(method) || method.isSynthetic()) {
       return;
@@ -144,7 +141,7 @@ public final class ExecutableSubInterfaceChecker {
     Switch switchAnnotation = method.getAnnotation(Switch.class);
     boolean isSwitch = switchAnnotation != null;
     if (isSwitch) {
-      checkSwitchMethod(executableInterface, method, diagnostic);
+      checkSwitchMethod(method, diagnostic);
     }
 
     // If not ignored and not @Switch
@@ -234,16 +231,12 @@ public final class ExecutableSubInterfaceChecker {
   /**
    * Checks a switch method.
    *
-   * @param executableInterface
-   *          the executable interface
    * @param switchMethod
    *          the switch method
    * @param diagnostic
    *          the diagnostic
    */
-  private void checkSwitchMethod(
-      Class<? extends IExecutable> executableInterface,
-      Method switchMethod, Diagnostic diagnostic) {
+  private void checkSwitchMethod(Method switchMethod, Diagnostic diagnostic) {
     checkSwitchMethodParameters(switchMethod, diagnostic);
 
     // Check @ExecuteNow and @ExecuteLater
@@ -253,7 +246,7 @@ public final class ExecutableSubInterfaceChecker {
     boolean isExecuteLater = executeLaterAnnotation != null;
     boolean isExecute = isExecuteNow || isExecuteLater;
     if (isExecute) {
-      checkExecuteMethod(executableInterface, switchMethod, diagnostic);
+      checkExecuteMethod(switchMethod, diagnostic);
     }
 
     // Check flattener
@@ -261,7 +254,7 @@ public final class ExecutableSubInterfaceChecker {
     if (flattenerAnnotation != null) {
       checkSwitchFlattenerAnnotation(switchMethod, diagnostic);
     }
-    
+
     // Check aggregator
     Aggregator aggregatorAnnotation = switchMethod.getAnnotation(Aggregator.class);
     if (aggregatorAnnotation != null) {
@@ -280,12 +273,9 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchFlattenerAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Flattener flattenerAnnotation = switchMethod.getAnnotation(Flattener.class);
     Class<? extends IFlattener> flattenerClass = flattenerAnnotation.flattener();
-    if (!isReflectivelyCreatable(flattenerClass)) {
-      diagnostic.addIssue(switchMethod, "The @Flattener class '" + flattenerClass
-          + "' must have a public 0-arg constructor");
-    }
+    checkReflectivelyCreatable(switchMethod, "@Flattener class", flattenerClass, diagnostic);
   }
-  
+
   /**
    * Checks switch aggregator annotation.
    *
@@ -297,10 +287,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchAggregatorAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Aggregator aggregatorAnnotation = switchMethod.getAnnotation(Aggregator.class);
     Class<? extends IAggregator> aggregatorClass = aggregatorAnnotation.aggregator();
-    if (!isReflectivelyCreatable(aggregatorClass)) {
-      diagnostic.addIssue(switchMethod, "The @Aggregator class '" + aggregatorClass
-          + "' must have a public 0-arg constructor");
-    }
+    checkReflectivelyCreatable(switchMethod, "@Aggregator class", aggregatorClass, diagnostic);
   }
 
   /**
@@ -352,24 +339,12 @@ public final class ExecutableSubInterfaceChecker {
   /**
    * Checks a command method.
    *
-   * @param executableInterface
-   *          the executable interface
    * @param executeMethod
    *          the method
-   * @param returnType
-   *          the return type
-   * @param parameters
-   *          the parameters
-   * @param executeAnnotation
-   *          the command annotation
-   * @param isSwitch
-   *          whether the method is a switch
    * @param diagnostic
    *          the diagnostic
    */
-  private void checkExecuteMethod(
-      Class<? extends IExecutable> executableInterface, Method executeMethod,
-      Diagnostic diagnostic) {
+  private void checkExecuteMethod(Method executeMethod, Diagnostic diagnostic) {
     ExecuteNow executeNowAnnotation = executeMethod.getAnnotation(ExecuteNow.class);
     boolean isExecuteNow = executeNowAnnotation != null;
     ExecuteLater executeLaterAnnotation = executeMethod.getAnnotation(ExecuteLater.class);
@@ -450,10 +425,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkExecutorAnnotation(Method executeMethod, Diagnostic diagnostic) {
     Executor executorAnnotation = executeMethod.getAnnotation(Executor.class);
     Class<? extends IExecutor> executorClass = executorAnnotation.value();
-    if (!isReflectivelyCreatable(executorClass)) {
-      diagnostic.addIssue(executeMethod,
-          "The executor class '" + executorClass + "' must have a public 0-arg constructor");
-    }
+    checkReflectivelyCreatable(executeMethod, "@Executor", executorClass, diagnostic);
   }
 
   /**
@@ -472,13 +444,23 @@ public final class ExecutableSubInterfaceChecker {
   /**
    * Checks if a method is reflectively creatable.
    *
+   * @param annotatedElement
+   *          the annotated element
+   * @param field
+   *          the field
    * @param clazz
    *          the class to check
-   * @return whether reflectively creatable
+   * @param diagnostic
+   *          the diagnostic
    */
-  private boolean isReflectivelyCreatable(Class<?> clazz) {
-    return stream(clazz.getConstructors())
+  private void checkReflectivelyCreatable(
+      AnnotatedElement annotatedElement, String field, Class<?> clazz, Diagnostic diagnostic) {
+    boolean isReflectivelyCreatable = stream(clazz.getConstructors())
         .filter(constructor -> constructor.getParameterCount() == 0)
         .anyMatch(constructor -> Modifier.isPublic(constructor.getModifiers()));
+    if (!isReflectivelyCreatable) {
+      diagnostic.addIssue(annotatedElement,
+          "The " + field + " class '" + clazz + "' must have a public 0-arg constructor");
+    }
   }
 }

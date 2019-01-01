@@ -39,8 +39,8 @@ public final class UnhandledMethodHandler implements IMethodHandler {
   public UnhandledMethodHandler(Method method) {
     try {
       this.methodHandle = MethodHandleUtils.getMethodHandle(method);
-    } catch (Throwable throwable) {
-      throw new CommandLineException(throwable);
+    } catch (ReflectiveOperationException reflectiveOperationException) {
+      throw new CommandLineException(reflectiveOperationException);
     }
   }
 

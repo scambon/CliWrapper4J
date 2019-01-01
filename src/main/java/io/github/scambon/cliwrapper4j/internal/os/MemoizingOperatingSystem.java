@@ -20,10 +20,10 @@ import java.nio.charset.Charset;
 /**
  * A delegating implementation that stores the method results.
  */
-public class MemoizingOperatingSystem implements IOperatingSystem {
+public class MemoizingOperatingSystem extends AbstractOperatingSystem {
 
   /** The delegate. */
-  private final IOperatingSystem delegate;
+  private final AbstractOperatingSystem delegate;
   /** The encoding. */
   private Charset encoding;
 
@@ -33,7 +33,7 @@ public class MemoizingOperatingSystem implements IOperatingSystem {
    * @param delegate
    *          the delegate
    */
-  public MemoizingOperatingSystem(IOperatingSystem delegate) {
+  public MemoizingOperatingSystem(AbstractOperatingSystem delegate) {
     this.delegate = delegate;
   }
 

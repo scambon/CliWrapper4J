@@ -26,18 +26,18 @@ public class OperatingSystemTest {
 
   @Test
   public void testGetOperatingSystem() {
-    IOperatingSystem operatingSystem = IOperatingSystem.get();
+    AbstractOperatingSystem operatingSystem = AbstractOperatingSystem.get();
     assertNotNull(operatingSystem);
   }
 
   @Test
   public void testGetWindowsOperatingSystemExplicitly() {
-    IOperatingSystem operatingSystem = IOperatingSystem.get("windows 10");
+    AbstractOperatingSystem operatingSystem = AbstractOperatingSystem.get("windows 10");
     assertNotNull(operatingSystem);
   }
 
   @Test
   public void testGetOperatingSystemFailure() {
-    assertThrows(CommandLineException.class, () -> IOperatingSystem.get("whatever"));
+    assertThrows(CommandLineException.class, () -> AbstractOperatingSystem.get("whatever"));
   }
 }

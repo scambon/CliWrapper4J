@@ -77,8 +77,6 @@ public final class ArrayParameterConverter<I> implements IConverter<I[], String>
     List<String> convertedValues = Arrays.stream(in)
         .map(element -> elementConverter.convert(element, outClass, extraParameterName2ValueMap))
         .collect(Collectors.toList());
-    String convertedIterable = flattener.flatten(
-        convertedValues, flattenerParameter, extraParameterName2ValueMap);
-    return convertedIterable;
+    return flattener.flatten(convertedValues, flattenerParameter, extraParameterName2ValueMap);
   }
 }

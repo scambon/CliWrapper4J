@@ -52,8 +52,7 @@ public abstract class AbstractDelegatingOutputExtractingResultConverter<O>
       Result in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap) {
     String sourceText = extractSourceText(in);
     String relevantString = extractRelevantText(sourceText);
-    O convertedValue = delegate.convert(relevantString, outClass, extraParameterName2ValueMap);
-    return convertedValue;
+    return delegate.convert(relevantString, outClass, extraParameterName2ValueMap);
   }
 
   /**

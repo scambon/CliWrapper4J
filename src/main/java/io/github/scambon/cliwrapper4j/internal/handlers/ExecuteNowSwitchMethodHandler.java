@@ -41,7 +41,7 @@ public class ExecuteNowSwitchMethodHandler
   public ExecuteNowSwitchMethodHandler(Method method, Switch zwitch, ExecuteNow executeNow) {
     super(method, zwitch,
         (executableNode, extraParameterName2ValueMap) ->
-            executableNode.setExecutionContext(method, executeNow, extraParameterName2ValueMap));
+            executableNode.setExecuteNowContext(method, extraParameterName2ValueMap));
   }
 
   @Override
