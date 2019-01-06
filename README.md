@@ -2,11 +2,20 @@
 
 A library to quickly build Java-friendly APIs to call command line applications.
 
-| Branch | Travis | Bugs | Coverage |
-| ------ | ------ | ---- | -------- |
-| Master | [![](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=bugs&branch=master)](https://sonarcloud.io/project/issues?branch=master&id=scambon_CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=coverage&branch=master)](https://sonarcloud.io/project/issues?branch=master&id=scambon_CliWrapper4J) |
-| Develop | [![](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=develop)](https://travis-ci.org/scambon/CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=bugs&branch=develop)](https://sonarcloud.io/project/issues?branch=develop&id=scambon_CliWrapper4J) | [![](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=coverage&branch=develop)](https://sonarcloud.io/project/issues?branch=develop&id=scambon_CliWrapper4J) |
+Get it from Maven Central:
 
+```xml
+<dependency>
+  <groupId>io.github.scambon</groupId>
+  <artifactId>io.github.scambon.cliwrapper4j</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.scambon/io.github.scambon.cliwrapper4j.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.scambon%22%20AND%20a:%22io.github.scambon.cliwrapper4j%22)
+[![JavaDoc.io](http://www.javadoc.io/badge/io.github.scambon/io.github.scambon.cliwrapper4j.svg)](http://www.javadoc.io/doc/io.github.scambon/io.github.scambon.cliwrapper4j).
+[![Travis CI](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
+[![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=sqale_rating&branch=master)](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
 
 
 ## Example
@@ -175,3 +184,8 @@ Usage include:
 The meaning of the parameter values passed as `@Extra` arguments is left to the implementation of the above interfaces.
 
 This annotation is not compatible with `@Converter`: values are passed without conversion.
+
+
+## Contributing
+
+See [Contributing](CONTRIBUTING.md).

@@ -17,7 +17,7 @@
 
 	<name>CliWrapper4J</name>
 	<description>A library to quickly build Java-friendly APIs to call command line applications</description>
-	<url>https://scambon.github.com/CliWrapper4J</url>
+	<url>https://scambon.github.io/CliWrapper4J</url>
 	<inceptionYear>2018</inceptionYear>
 	<licenses>
 		<license>
@@ -50,7 +50,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.com/scambon/CliWrapper4J</url>
+		<url>https://travis-ci.org/scambon/CliWrapper4J</url>
 	</ciManagement>
 	<distributionManagement>
 		<snapshotRepository>
