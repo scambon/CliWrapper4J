@@ -1,0 +1,65 @@
+#Copyright 2018 Sylvain Cambon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+language: java
+
+os:
+  - linux
+#  - windows (no Java support for now)
+
+jdk:
+  - oraclejdk8
+  - oraclejdk11
+
+cache:
+  directories:
+    - ~/.m2/repository
+
+addons:
+  sonarcloud:
+    organization: "scambon-github"
+
+
+install:
+  - mvn --settings settings.xml clean package -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true
+
+script:
+  - mvn --settings settings.xml clean package
+
+jobs:
+  include:
+    - stage: deploy
+      os: linux
+      jdk: oraclejdk8
+      script:
+        - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+        - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+        - "[[ $TRAVIS_BRANCH =~ ^master|develop$ ]] && maven_goal='deploy' || maven_goal='verify'"
+        - echo Run Maven till goal $maven_goal on branch $TRAVIS_BRANCH
+        - mvn --settings settings.xml clean $maven_goal --activate-profiles release
+        - project_version=$(sed -n 's/version=//p' target/maven-archiver/pom.properties)
+        - echo Detected version $project_version
+      deploy:
+        provider: releases
+        on:
+          repo: scambon/CliWrapper4J
+          branch: master
+        api_key:
+           secure: EBJ8HM1tXVp7+fYGQgOzcjwH/rfW7f0qz8y4mk8FKoklWjK3Q0w1txwR3XC54eXTXBoJa4mPSrWv6j2Y/MuntyfOERpfkhDFyWx8gLZ3BK3YOjAbSWUJO7n/+3oknRfQaeFPZNAIQ+AehYAZt674NSuiCWVMl6FAttPgElQT+0vmvjUeY/I5nPQwP+8J8qog81/v8MAEADUgaf7QnYWyYDpfAVDLFAQ66RfNmN2Lx+HPAPKAqVr2BgUB4PEAOUKvQSuJcPuZl+DsL5ADJp8CA1kv6VQ0LGR+hxpcTOFF5W3UaK/iyv6eOlyw8YqQ7WMRlmDKhr+x8HvW9RctHlKAqEmgApIezxay/LLWKYV7M4GJkPoBtE0KzHNb2TccRaKeEZi9AHw8UltQRO7mUdlGLaGb27ZC5bcsuzRJY8rhID2yZguXzbVAz4cj95BnFOKbNbh4/4jSxoaF4Ms9qhgFsJKovRpNI91Q6UcMb34h9d8DqquewK7xIYZHL4V26dpM2S8W9A33I4+kI7qBKK/gJWlXsiS9cZzbkI5y2hwTjjqigorw1AUiP+hWw/FPzOrP3T/c6JgVjzgeG6pJpvkgbc/iaThGsjQZ8rCGL6i3ql66QW2Gv7a8QeEAGP/4vBvVTuvNa2uiL5/h21I2DDZIZkZVpu0IzW/X4a6BJofI2h4=
+        skip_cleanup: true
+        name: $project_version
+        draft: true
+        prerelease: true
+        file_glob: true
+        file: target/*.jar
