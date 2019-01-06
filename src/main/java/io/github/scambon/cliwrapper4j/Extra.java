@@ -49,7 +49,7 @@ import java.util.Map;
  * implementation of the above interfaces.
  * </p>
  * <p>
- * This annotation is not compatible with {@link Converter}: values are passed withtout conversion.
+ * This annotation is not compatible with {@link Converter}: values are passed without conversion.
  * </p>
  */
 @Retention(RUNTIME)

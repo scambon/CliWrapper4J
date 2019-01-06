@@ -52,8 +52,8 @@ import java.lang.annotation.Target;
  * annotation omitted)</li>
  * </ol>
  * 
- * <h3>Return type</h3> If the method is not annotated with {@link ExecuteNow} or
- * {@link ExecuteLater}, the method must return its interface type.
+ * <h3>Return type</h3> If the method is not annotated with {@link ExecuteNow}, the method must
+ * return its interface type.
  * 
  * <h3>Execution</h3> To trigger execution, use {@link ExecuteNow} or {@link ExecuteLater} in
  * addition to this annotation.

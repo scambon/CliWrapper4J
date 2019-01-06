@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * codes are as expected.
  * </p>
  * <p>
- * By default, the return code is checked to be <code>0</code>. This is aso the case if this
+ * By default, the return code is checked to be <code>0</code>. This is also the case if this
  * annotation is not explicitly used. You can customize the expected returns code with
  * {@link #value()}. You can also disable the checking by setting {@link #value()} to
  * <code>{}</code>.
