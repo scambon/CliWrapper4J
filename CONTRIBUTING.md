@@ -10,6 +10,15 @@ Contributions are welcome!
 
 
 
+## Continuous integration
+
+The project is uses the following services
+
+- [Travis CI](https://travis-ci.org/scambon/CliWrapper4J)
+- [SonarCloud](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
+
+
+
 ## Development practices
 
 ### Coding
@@ -43,13 +52,3 @@ As I am not a native speaker, let me know if you find some mistakes in method na
 Code coverage should not decrease.
 However, I think it is OK not to spend too much time testing some highly unlikely exceptions.
 Let me know if the "unlikely" hypothesis is no more valid.
-
-
-
-## Continuous integration
-
-The project is uses the following services
-
-- [Travis CI](https://travis-ci.com/scambon/CliWrapper4J)
-- [SonarCloud](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
-- [Sonatype hosting](TODO)
