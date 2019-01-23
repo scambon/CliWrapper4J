@@ -18,6 +18,7 @@ package io.github.scambon.cliwrapper4j.example;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteLater;
+import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorParameterConverter;
@@ -37,4 +38,8 @@ public interface IGitCommandLine extends IExecutable {
   @Switch("")
   public IGitCommandLine files(
       @Converter(FilesWithSpaceSeparatorParameterConverter.class) Path... paths);
+
+  @Switch("config --add")
+  @ExecuteNow
+  public void configAdd(String key, String value);
 }
