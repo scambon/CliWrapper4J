@@ -8,7 +8,7 @@ Get it from Maven Central:
 <dependency>
   <groupId>io.github.scambon</groupId>
   <artifactId>io.github.scambon.cliwrapper4j</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
 </dependency>
 ```
 

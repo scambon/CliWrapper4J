@@ -13,7 +13,7 @@
 
 	<groupId>io.github.scambon</groupId>
 	<artifactId>io.github.scambon.cliwrapper4j</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 
 	<name>CliWrapper4J</name>
 	<description>A library to quickly build Java-friendly APIs to call command line applications</description>
