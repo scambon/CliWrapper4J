@@ -8,12 +8,12 @@ Get it from Maven Central:
 <dependency>
   <groupId>io.github.scambon</groupId>
   <artifactId>io.github.scambon.cliwrapper4j</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.scambon/io.github.scambon.cliwrapper4j.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.scambon%22%20AND%20a:%22io.github.scambon.cliwrapper4j%22)
-[![JavaDoc.io](http://www.javadoc.io/badge/io.github.scambon/io.github.scambon.cliwrapper4j.svg)](http://www.javadoc.io/doc/io.github.scambon/io.github.scambon.cliwrapper4j).
+[![JavaDoc.io](http://www.javadoc.io/badge/io.github.scambon/io.github.scambon.cliwrapper4j.svg)](http://www.javadoc.io/doc/io.github.scambon/io.github.scambon.cliwrapper4j)
 [![Travis CI](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
 [![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=sqale_rating&branch=master)](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
 
