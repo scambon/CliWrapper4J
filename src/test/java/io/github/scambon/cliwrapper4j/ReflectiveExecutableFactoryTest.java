@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,15 @@ import io.github.scambon.cliwrapper4j.example.IJavaCommandLine;
 import io.github.scambon.cliwrapper4j.example.ISystemVariableCommandLine;
 import io.github.scambon.cliwrapper4j.example.IUnhandledMethodsCommandLine;
 import io.github.scambon.cliwrapper4j.example.Version;
+import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -67,6 +70,21 @@ public class ReflectiveExecutableFactoryTest {
     assertNotNull(version);
     environment.checkElements("java", "-version");
   }
+  
+  @Test
+  public void testMethodWithVoidReturnType() {
+    IExecutionEnvironment environment = new DefaultExecutionEnvironment() {
+      @Override
+      public Result run(IExecutor executor, List<String> cliElements,
+          Map<String, Object> extraParameterName2ValueMap) {
+        return new Result("", "", 0);
+      }
+    };
+    IGitCommandLine git = gitFactory.create(environment);
+    git.configAdd("foo", "bar");
+  }
+  
+  
 
   @Test
   public void testCommandFailingConversion() {

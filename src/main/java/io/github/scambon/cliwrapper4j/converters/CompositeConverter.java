@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.github.scambon.cliwrapper4j.CommandLineException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A converter that converts with its first delegate which is able to.
@@ -71,8 +72,11 @@ public class CompositeConverter<I, O> implements IConverter<I, O> {
     return (O) converters.stream()
         .filter(converter -> converter.canConvert(inClass, outClass))
         .map(converter -> converter.convert(in, outClass, extraParameterName2ValueMap))
+        // Prevent NPE if the converter returns null 
+        .map(Optional::ofNullable)
         .findFirst()
         .orElseThrow(
-            () -> new CommandLineException("Could not convert '" + in + "' to '" + outClass + "'"));
+            () -> new CommandLineException("Could not convert '" + in + "' to '" + outClass + "'"))
+        .orElseGet(() -> null);
   }
 }
