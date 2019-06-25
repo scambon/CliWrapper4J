@@ -50,7 +50,7 @@ public class ReflectiveExecutableFactory<W extends IExecutable>
   public ReflectiveExecutableFactory(Class<W> executableInterface) {
     this.executableInterface = executableInterface;
     this.method2HandlerMap = ExecutableHandler.createHandlers(executableInterface);
-    ClassLoader classLoader = ReflectiveExecutableFactory.class.getClassLoader();
+    ClassLoader classLoader = executableInterface.getClassLoader();
     Class<?>[] interfaces = new Class<?>[]{executableInterface};
     this.proxyConstructor = handler -> (W) Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
