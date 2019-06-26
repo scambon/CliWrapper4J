@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2018 Sylvain Cambon Licensed under the Apache License, Version 
+<!-- Copyright 2018-2019 Sylvain Cambon Licensed under the Apache License, Version 
 	2.0 (the "License"); you may not use this file except in compliance with 
 	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
 	Unless required by applicable law or agreed to in writing, software distributed 
@@ -13,7 +13,7 @@
 
 	<groupId>io.github.scambon</groupId>
 	<artifactId>io.github.scambon.cliwrapper4j</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 	<name>CliWrapper4J</name>
 	<description>A library to quickly build Java-friendly APIs to call command line applications</description>

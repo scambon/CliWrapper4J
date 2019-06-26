@@ -8,7 +8,7 @@ Get it from Maven Central:
 <dependency>
   <groupId>io.github.scambon</groupId>
   <artifactId>io.github.scambon.cliwrapper4j</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -75,6 +75,16 @@ public interface IJavaCommandLine extends IExecutable {
 }
 ```
 
+To use this executable wrapper, use the following code:
+
+```java
+  IExecutableFactory<IJavaCommandLine> javaFactory = new ReflectiveExecutableFactory<>(IJavaCommandLine.class);
+  IJavaCommandLine java = javaFactory.create();
+  Version version = java.version();
+```
+
+There is more in this library than this example.
+See below for further details.
 
 
 ## Concepts

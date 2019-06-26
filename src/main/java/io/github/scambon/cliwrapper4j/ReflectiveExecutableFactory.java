@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class ReflectiveExecutableFactory<W extends IExecutable>
   public ReflectiveExecutableFactory(Class<W> executableInterface) {
     this.executableInterface = executableInterface;
     this.method2HandlerMap = ExecutableHandler.createHandlers(executableInterface);
-    ClassLoader classLoader = ReflectiveExecutableFactory.class.getClassLoader();
+    ClassLoader classLoader = executableInterface.getClassLoader();
     Class<?>[] interfaces = new Class<?>[]{executableInterface};
     this.proxyConstructor = handler -> (W) Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
