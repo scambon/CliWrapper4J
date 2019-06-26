@@ -20,7 +20,14 @@ os:
 
 jdk:
   - oraclejdk8
-  - oraclejdk11
+  - openjdk11
+
+matrix:
+  include:
+  - dist: trusty
+    jdk: oraclejdk8
+  - dist: xenial
+    jdk: openjdk11
 
 cache:
   directories:
@@ -41,6 +48,7 @@ jobs:
   include:
     - stage: deploy
       os: linux
+      dist: trusty
       jdk: oraclejdk8
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
