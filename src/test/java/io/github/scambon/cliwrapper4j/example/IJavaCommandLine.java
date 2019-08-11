@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,10 @@ public interface IJavaCommandLine extends IExecutable {
   @ReturnCode(1)
   @Converter(VersionResultConverter.class)
   Version versionWithCustomReturnCodeCheck();
+  
+  @Switch("-version")
+  @ExecuteNow
+  VirtualMachineType getVirtualMachineType();
 
   default int getMajorVersion() {
     return version().getMajorVersion();

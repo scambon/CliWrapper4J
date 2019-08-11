@@ -220,7 +220,7 @@ public class ExecutableSubInterfaceCheckerTest {
   @Executable("!")
   public interface ReturnValueLaterConversionFailureCommandMethod extends IExecutable {
     @Switch("!")
-    @ExecuteLater(value = Properties.class)
+    @ExecuteLater(value = Collection.class)
     ReturnValueLaterConversionFailureCommandMethod whatever();
   }
 
@@ -228,7 +228,7 @@ public class ExecutableSubInterfaceCheckerTest {
   public void testFailOnCreatingReturnValueLaterConversionFailureCommandMethod() {
     List<Issue> issues = getIssues(ReturnValueLaterConversionFailureCommandMethod.class);
     assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("whatever", "Properties"));
+        annotatedElementAndDescriptionContains("whatever", "Collection"));
   }
 
   @Executable("!")

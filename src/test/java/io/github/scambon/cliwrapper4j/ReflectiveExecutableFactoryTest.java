@@ -29,6 +29,7 @@ import io.github.scambon.cliwrapper4j.example.IJavaCommandLine;
 import io.github.scambon.cliwrapper4j.example.ISystemVariableCommandLine;
 import io.github.scambon.cliwrapper4j.example.IUnhandledMethodsCommandLine;
 import io.github.scambon.cliwrapper4j.example.Version;
+import io.github.scambon.cliwrapper4j.example.VirtualMachineType;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
@@ -70,7 +71,7 @@ public class ReflectiveExecutableFactoryTest {
     assertNotNull(version);
     environment.checkElements("java", "-version");
   }
-  
+
   @Test
   public void testMethodWithVoidReturnType() {
     IExecutionEnvironment environment = new DefaultExecutionEnvironment() {
@@ -83,8 +84,15 @@ public class ReflectiveExecutableFactoryTest {
     IGitCommandLine git = gitFactory.create(environment);
     git.configAdd("foo", "bar");
   }
-  
-  
+
+  @Test
+  public void testDefaultReflectiveConversion() {
+    MockExecutionEnvironment environment = MockExecutionHelper.createExecutionEnvironment("java", "-version");
+    IJavaCommandLine java = javaFactory.create(environment);
+    VirtualMachineType virtualMachineType = java.getVirtualMachineType();
+    // The file used by the mock uses HotSpot
+    assertEquals(VirtualMachineType.HOTSPOT, virtualMachineType);
+  }
 
   @Test
   public void testCommandFailingConversion() {

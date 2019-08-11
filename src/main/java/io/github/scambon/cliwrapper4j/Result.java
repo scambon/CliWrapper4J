@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package io.github.scambon.cliwrapper4j;
 
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that represents the raw output of calling a command line. Filling this result depends on
@@ -73,6 +76,67 @@ public final class Result {
    */
   public int getReturnCode() {
     return returnCode;
+  }
+
+  /**
+   * Wraps this result as an array specified by the given types.
+   * The extraction occurs according to the following table:
+   * <table border="1">
+   * <caption>Parameters</caption>
+   * <tr>
+   * <th>Parameter type</th>
+   * <th>Parameter value</th>
+   * </tr>
+   * <tr>
+   * <td><code>Result</code></td>
+   * <td>this <code>result</code></td>
+   * </tr>
+   * <tr>
+   * <td><code>String</code></td>
+   * <td>
+   * <ol>
+   * <li><code>output</code> (first use only)</li>
+   * <li><code>error</code> (all later use)</li>
+   * </ol>
+   * </td>
+   * </tr>
+   * <tr>
+   * <td><code>Integer</code> or <code>int</code></td>
+   * <td><code>return code</code></td>
+   * </tr>
+   * <tr>
+   * <td><code>Void</code> or <code>void</code></td>
+   * <td><code>null</code></td>
+   * </tr>
+   * </table>
+   * 
+   * @param types
+   *          the array element types
+   * @return the value array
+   */
+  public Object[] toArray(Class<?>[] types) {
+    List<Object> values = new ArrayList<>();
+    boolean outputAdded = false;
+    for (Class<?> type : types) {
+      if (Result.class.equals(type)) {
+        values.add(this);
+      } else if (String.class.equals(type)) {
+        if (!outputAdded) {
+          values.add(output);
+          outputAdded = true;
+        } else {
+          values.add(error);
+        }
+      } else if (Integer.class.equals(type) || int.class.equals(type)) {
+        values.add(returnCode);
+      } else if (Void.class.equals(type) || void.class.equals(type)) {
+        values.add(null);
+      } else {
+        throw new CommandLineException(
+            "Cannot convert result '" + this + "' or its fields to type '" + type + "'.");
+      }
+    }
+    return values.toArray();
   }
 
   @Override

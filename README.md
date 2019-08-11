@@ -1,3 +1,17 @@
+<!-- Copyright 2018-2019 Sylvain Cambon
+  -- 
+  -- Licensed under the Apache License, Version 2.0 (the "License");
+  -- you may not use this file except in compliance with the License.
+  -- You may obtain a copy of the License at
+  -- 
+  --     http://www.apache.org/licenses/LICENSE-2.0
+  -- 
+  -- Unless required by applicable law or agreed to in writing, software
+  -- distributed under the License is distributed on an "AS IS" BASIS,
+  -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  -- See the License for the specific language governing permissions and
+  -- limitations under the License. -->
+ 
 # CliWrapper4J
 
 A library to quickly build Java-friendly APIs to call command line applications.
@@ -73,6 +87,10 @@ public interface IJavaCommandLine extends IExecutable {
   @Converter(VersionResultConverter.class)
   Version versionWithCustomReturnCodeCheck();
 
+  @Switch("-version")
+  @ExecuteNow
+  VirtualMachineType getVirtualMachineTypeAndConvertReflectively();
+
   default int getMajorVersion() {
     return version().getMajorVersion();
   }
@@ -119,7 +137,11 @@ Parameters then need to be processed with:
 - Annotating the method with `@Aggregator` to aggregate the command name and the flattened parameter values (defaults to `SymbolAggregator` with <code>" "</code> if annotation omitted)
 
 #### Return type
-If the method is not annotated with `@ExecuteNow`, the method must return its interface type.
+If annotated with `@ExecuteNow`, then you can add an `@Converter` to convert the `Result` into
+ something else.
+If no `@Converter` is provided, the default  implicit behavior is to use a `ResultConverter`, which returns `Result` components or reflectively creates an instance (see JavaDoc for details).
+ 
+If the method is not annotated with `@ExecuteNow`, the method must return its interface type for call chaining.
 
 #### Execution
 To trigger execution, use `@ExecuteNow` or `@ExecuteLater` in addition to this annotation.
@@ -129,13 +151,33 @@ To trigger execution, use `@ExecuteNow` or `@ExecuteLater` in addition to this a
 An annotation that describes what `IConverter` is to be used to transform from one type to another.
 This must be placed only on `@Switch`-annotated methods.
 
-Depending on the need, the expectations differ:
+Depending on case, expectations differ:
 
-| Case                                               | Location  | Input type | Output type | Default if not set                       | Comments                                                         |
-| -------------------------------------------------- | --------- | -----------| ----------- | ---------------------------------------- | -----------------------------------------------------------------|
-| Convert execution result                           | Method    | `Result` | (anything)  | `ResultConverter`                   | Only on `@ExecuteNow`- or `@ExecuteLater`-annotated methods |
-| Convert parameter to be passed to the command line | Parameter | (anything) | `String`  | `StringQuotedIfNeededConverter` | Not compatible with `@Extra`                                    |
+| Case                                               | Location  | Input type | Output type | Default if not set                                                                                                  | Comments                                                            |
+| -------------------------------------------------- | --------- | -----------| ----------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Convert execution result                           | Method    | `Result` | (anything)  | `ResultConverter` (returns `Result` components or reflectively creates an instance, see JavaDoc for details) | Only on `@ExecuteNow`- or `@ExecuteLater`-annotated methods |
+| Convert parameter to be passed to the command line | Parameter | (anything) | `String`  | `StringQuotedIfNeededConverter`                                                                            | Not compatible with `@Extra`                                      |
 
+Some implementations:
+
+- `IConverter`: the interface to implement
+- Parameter converters:
+  - `StringConverter`: calls `toString()`
+  - `StringQuotedIfNeededConverter`: calls `toString()` and adds quotes around if any space character is found
+  - `IterableParameterConverter` & `MultipleParameterConverter`: iterates over elements and flattens them 
+  - JDK `File` and `Path`:
+    - `ShortFileParameterConverter`: converts without resolving or relativizing
+    - `FilesWithPathSeparatorParameterConverter` & `FilesWithSpaceSeparatorParameterConverter`: iterates over files
+- Result converters:
+  - `AbstractDelegatingOutputExtractingResultConverter`: converts using a part of the output
+  - `AbstractRegexResultConverter`: converts using a part of the output found using a regular expression
+  - `ConstructorResultConverter`: converts using a constructor
+  - `FactoryMethodResultConverter`: converts using a factory method
+  - `ReflectiveResultConverter`: converts using a constructor or factory method
+  - `ResultConverter`: converts to a `Result` or one of its components or using a constructor or factory method
+- Helpers:
+  - `LambdaConverter`: converts using type information and lambda-friendly code
+  - `CompositeConverter`: converts using the first relevant delegate converter
 
 ### @Flattener and IFlattener
 An annotation that describes how to flatten a method parameter values, using the `#flattener()` class configured with the `#value()` as its parameter.
