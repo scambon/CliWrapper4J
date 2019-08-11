@@ -33,6 +33,7 @@ import io.github.scambon.cliwrapper4j.ReturnCode;
 import io.github.scambon.cliwrapper4j.Switch;
 import io.github.scambon.cliwrapper4j.aggregators.IAggregator;
 import io.github.scambon.cliwrapper4j.converters.FilesWithSpaceSeparatorParameterConverter;
+import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.converters.StringConverter;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.example.VersionResultConverter;
@@ -109,7 +110,7 @@ public class ExecutableSubInterfaceCheckerTest {
   }
 
   @Executable("!")
-  public interface NotCommantNotOptionNotHandledMethod extends IExecutable {
+  public interface NotSwitchNorHandledMethod extends IExecutable {
 
     @Flattener
     int shouldNotHaveAFlattener();
@@ -117,12 +118,15 @@ public class ExecutableSubInterfaceCheckerTest {
     @Aggregator
     int shouldNotHaveAnAggregator();
 
-    int shouldNotHaveAConverter(@Converter(StringConverter.class) String s1, String s2);
+    @Converter(ResultConverter.class)
+    int shouldNotHaveAConverter(String s1, String s2);
+    
+    int shouldNotHaveAParameterConverter(@Converter(StringConverter.class) String s1, String s2);
   }
 
   @Test
-  public void testFailOnCreatingNotCommantNotOptionNotHandledMethod() {
-    List<Issue> issues = getIssues(NotCommantNotOptionNotHandledMethod.class);
+  public void testFailOnCreatingNotSwitchNorHandledMethod() {
+    List<Issue> issues = getIssues(NotSwitchNorHandledMethod.class);
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("shouldNotHaveAnAggregator", "Aggregator"));
     assertOneIssueMatches(issues,
@@ -132,9 +136,13 @@ public class ExecutableSubInterfaceCheckerTest {
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("shouldNotHaveAFlattener", "nor"));
     assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("arg0", "Converter"));
+        annotatedElementAndDescriptionContains("shouldNotHaveAConverter", "Converter"));
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("shouldNotHaveAConverter", "nor"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("shouldNotHaveAParameterConverter", "Converter"));
+    assertOneIssueMatches(issues,
+        annotatedElementAndDescriptionContains("shouldNotHaveAParameterConverter", "nor"));
   }
 
   @Executable("!")
@@ -150,19 +158,6 @@ public class ExecutableSubInterfaceCheckerTest {
     List<Issue> issues = getIssues(ExecuteNowAndLaterMethod.class);
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("whatever", "both @ExecuteNow and @ExecuteLater"));
-  }
-
-  @Executable("!")
-  public interface ExtraOnOptionMethod extends IExecutable {
-    @Switch("!")
-    int whatever(@Extra("extra") String whatever);
-  }
-
-  @Test
-  public void testFailOnCreatingExtraOnOptionMethod() {
-    List<Issue> issues = getIssues(ExtraOnOptionMethod.class);
-    assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("whatever", "Extra"));
   }
 
   @Executable("!")
@@ -249,7 +244,7 @@ public class ExecutableSubInterfaceCheckerTest {
   public void testFailOnCreatingIgnoredMethodWithCommand() {
     List<Issue> issues = getIssues(IgnoredMethodWithCommand.class);
     assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("whatever", "default"));
+        annotatedElementAndDescriptionContains("whatever", "Ignored method"));
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("whatever", "@Converter"));
     assertOneIssueMatches(issues,
@@ -292,7 +287,7 @@ public class ExecutableSubInterfaceCheckerTest {
     assertOneIssueMatches(issues,
         annotatedElementAndDescriptionContains("executorWithoutExecute", "ExecuteNow"));
     assertOneIssueMatches(issues,
-        annotatedElementAndDescriptionContains("returnCodeWithoutExecute", "ExecutorNow"));
+        annotatedElementAndDescriptionContains("returnCodeWithoutExecute", "ExecuteNow"));
   }
 
   public static class NonReflectivelyCreatableExecutor implements IExecutor {

@@ -65,18 +65,18 @@
 
 	<properties>
 		<!-- Dependency versions -->
-		<junit.version>5.3.2</junit.version>
+		<junit.version>5.5.1</junit.version>
 
 		<!-- Plugin versions -->
-		<git.version>2.2.5</git.version>
+		<git.version>3.0.0</git.version>
 		<gpg.version>1.6</gpg.version>
-		<jar.version>3.1.1</jar.version>
-		<jacoco.version>0.8.2</jacoco.version>
+		<jar.version>3.1.2</jar.version>
+		<jacoco.version>0.8.4</jacoco.version>
 		<javadoc.version>3.0.1</javadoc.version>
 		<nexus-staging.version>1.6.8</nexus-staging.version>
-		<sonar.version>3.5.0.1254</sonar.version>
-		<source.version>3.0.1</source.version>
-		<surefire.version>2.22.1</surefire.version>
+		<sonar.version>3.6.0.1398</sonar.version>
+		<source.version>3.1.0</source.version>
+		<surefire.version>3.0.0-M3</surefire.version>
 
 		<!-- Plugin configurations -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -18,6 +18,7 @@ package io.github.scambon.cliwrapper4j.internal.check;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.createInstance;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefaultClass;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 import io.github.scambon.cliwrapper4j.Aggregator;
 import io.github.scambon.cliwrapper4j.Converter;
@@ -159,6 +160,8 @@ public final class ExecutableSubInterfaceChecker {
    *          the diagnostic
    */
   private void checkAnnotationDependencies(Method method, Diagnostic diagnostic) {
+    checkAnnotationDependency(method, diagnostic, Flattener.class, Switch.class);
+    checkAnnotationDependency(method, diagnostic, Aggregator.class, Switch.class);
     checkAnnotationDependency(method, diagnostic, ExecuteNow.class, Switch.class);
     checkAnnotationDependency(method, diagnostic, ExecuteLater.class, Switch.class);
     checkAnnotationDependency(
@@ -176,7 +179,7 @@ public final class ExecutableSubInterfaceChecker {
    *          the method
    * @param diagnostic
    *          the diagnostic
-   * @param ifAs
+   * @param ifHas
    *          the dependent annotation
    * @param thenRequire
    *          the possible dependencies
@@ -184,17 +187,22 @@ public final class ExecutableSubInterfaceChecker {
   @SafeVarargs
   private final void checkAnnotationDependency(
       Method method, Diagnostic diagnostic,
-      Class<? extends Annotation> ifAs,
+      Class<? extends Annotation> ifHas,
       Class<? extends Annotation>... thenRequire) {
-    Annotation ifAsAnnotation = method.getAnnotation(ifAs);
-    if (ifAsAnnotation != null) {
+    Annotation ifHasAnnotation = method.getAnnotation(ifHas);
+    if (ifHasAnnotation != null) {
       boolean thenRequireFound = stream(thenRequire)
           .map(method::getAnnotation)
           .anyMatch(Objects::nonNull);
       if (!thenRequireFound) {
+        String ifHasString = getAnnotationRepresentation(ifHas);
+        String thenRequireString = stream(thenRequire)
+            .map(ExecutableSubInterfaceChecker::getAnnotationRepresentation)
+            .collect(toList())
+            .toString();
         diagnostic.addIssue(method,
-            "Found annotation '@" + ifAs + "' but the required annotation in '"
-                + Arrays.toString(thenRequire) + "' is not found");
+            "Found annotation '" + ifHasString + "' but the required annotation in '"
+                + thenRequireString + "' is not found");
       }
     }
   }
@@ -213,19 +221,12 @@ public final class ExecutableSubInterfaceChecker {
     for (Class<? extends Annotation> methodAnnotation : METHOD_ANNOTATIONS) {
       Annotation annotation = method.getAnnotation(methodAnnotation);
       if (annotation != null) {
+        String methodAnnotationString = getAnnotationRepresentation(methodAnnotation);
         diagnostic.addIssue(method,
-            "Non-@Switch method should not have an '@" + methodAnnotation + "'");
+            "Ignored method should not have an '" + methodAnnotationString + "'");
       }
     }
-    for (Parameter parameter : method.getParameters()) {
-      for (Class<? extends Annotation> annotationClass : PARAMETER_ANNOTATIONS) {
-        Annotation annotation = parameter.getAnnotation(annotationClass);
-        if (annotation != null) {
-          diagnostic.addIssue(parameter,
-              "Non-@Switch method should not have a '@" + annotation + "' on its parameter");
-        }
-      }
-    }
+    checkNonSwitchMethod(method, diagnostic);
   }
 
   /**
@@ -439,6 +440,29 @@ public final class ExecutableSubInterfaceChecker {
   private void checkUnhandledMethod(Method method, Diagnostic diagnostic) {
     diagnostic.addIssue(method,
         "Is neither static, nor default, nor not public, nor annoted with @Command or @Switch");
+    checkNonSwitchMethod(method, diagnostic);
+  }
+
+  /**
+   * Checks a method not annotated with Switch.
+   * 
+   * @param method
+   *          the method
+   * @param diagnostic
+   *          the diagnostic
+   */
+  private void checkNonSwitchMethod(Method method, Diagnostic diagnostic) {
+    for (Parameter parameter : method.getParameters()) {
+      for (Class<? extends Annotation> parameterAnnotation : PARAMETER_ANNOTATIONS) {
+        Annotation annotation = parameter.getAnnotation(parameterAnnotation);
+        if (annotation != null) {
+          String parameterAnnotationString = getAnnotationRepresentation(parameterAnnotation);
+          diagnostic.addIssue(method,
+              "Ignored method should not have an '" + parameterAnnotationString
+                  + "' on its parameter '" + parameter + "'");
+        }
+      }
+    }
   }
 
   /**
@@ -462,5 +486,15 @@ public final class ExecutableSubInterfaceChecker {
       diagnostic.addIssue(annotatedElement,
           "The " + field + " class '" + clazz + "' must have a public 0-arg constructor");
     }
+  }
+
+  /**
+   * Gets the annotation string representation.
+   * @param annotationType the annotation type
+   * @return the string representation
+   */
+  private static String getAnnotationRepresentation(Class<? extends Annotation> annotationType) {
+    String annotationName = annotationType.getSimpleName();
+    return "@" + annotationName;
   }
 }
