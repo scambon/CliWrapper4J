@@ -1,4 +1,4 @@
-#Copyright 2018-2019 Sylvain Cambon
+# Copyright 2018-2019 Sylvain Cambon
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ os:
 #  - windows (no Java support for now)
 
 jdk:
-  - oraclejdk8
+  - openjdk8
   - openjdk11
 
 matrix:
   include:
   - dist: trusty
-    jdk: oraclejdk8
+    jdk: openjdk8
   - dist: xenial
     jdk: openjdk11
 
@@ -49,7 +49,7 @@ jobs:
     - stage: deploy
       os: linux
       dist: trusty
-      jdk: oraclejdk8
+      jdk: openjdk8
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
         - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
