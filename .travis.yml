@@ -19,15 +19,29 @@ os:
 #  - windows (no Java support for now)
 
 jdk:
+  # Most common JDK
   - openjdk8
+  # Modular JDK
+  - openjdk9
+  # Current LTS
   - openjdk11
+  # Latest released
+  - openjdk12
+  # Next release
+  - openjdk13
 
 matrix:
   include:
   - dist: trusty
     jdk: openjdk8
+  - dist: trusty
+    jdk: openjdk9
   - dist: xenial
     jdk: openjdk11
+  - dist: xenial
+    jdk: openjdk12
+  - dist: bionic
+    jdk: openjdk13
 
 cache:
   directories:

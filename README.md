@@ -14,8 +14,12 @@ Get it from Maven Central:
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.scambon/io.github.scambon.cliwrapper4j.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.scambon%22%20AND%20a:%22io.github.scambon.cliwrapper4j%22)
 [![JavaDoc.io](http://www.javadoc.io/badge/io.github.scambon/io.github.scambon.cliwrapper4j.svg)](http://www.javadoc.io/doc/io.github.scambon/io.github.scambon.cliwrapper4j)
+![Built on Java8](https://img.shields.io/badge/Built%20on-Java%208-brightgreen)
+[![Tested on Java 8, 9, 11, 12, 13](https://img.shields.io/badge/Tested%20with-Java%208%2C%209%2C%2011%2C%2012%2C%2013-brightgreen)](https://travis-ci.org/scambon/CliWrapper4J)
 [![Travis CI](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
 [![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=sqale_rating&branch=master)](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
+
+
 
 
 ## Example
