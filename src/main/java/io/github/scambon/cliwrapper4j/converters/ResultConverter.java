@@ -41,6 +41,6 @@ public final class ResultConverter extends CompositeConverter<Result, Object> {
         new LambdaConverter<>(Result.class, Integer.class, Result::getReturnCode),
         new LambdaConverter<>(Result.class, void.class, result -> null),
         new LambdaConverter<>(Result.class, Void.class, result -> null),
-        new ReflectiveResultConverter<>());
+        new ReflectiveResultConverter());
   }
 }

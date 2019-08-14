@@ -23,14 +23,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A result converter that reflectively calls the {@link O} constructor corresponding to the given
+ * A result converter that reflectively calls the constructor corresponding to the given
  * parameter types. If such a constructor is not defined, then {@link #canConvert(Class, Class)}
  * returns <code>false</code>.
- * 
- * @param <O>
- *          the output type
  */
-public class ConstructorResultConverter<O> implements IConverter<Result, O> {
+public class ConstructorResultConverter implements IConverter<Result, Object> {
   /** The parameter types to look for. */
   private final Class<?>[] constructorParameterTypes;
   /** The parameters extractor. */
@@ -40,7 +37,7 @@ public class ConstructorResultConverter<O> implements IConverter<Result, O> {
    * Creates the converter, using {@link Result#toArray(Class[])}.
    * 
    * @param constructorParameterTypes
-   *          the expected {@link O} constructor parameter types
+   *          the expected constructor parameter types
    */
   public ConstructorResultConverter(Class<?>... constructorParameterTypes) {
     this(constructorParameterTypes, result -> result.toArray(constructorParameterTypes));
@@ -50,9 +47,9 @@ public class ConstructorResultConverter<O> implements IConverter<Result, O> {
    * Creates the converter.
    * 
    * @param constructorParameterTypes
-   *          the expected {@link O} constructor parameter types
+   *          the expected constructor parameter types
    * @param constructorParametersExtractor
-   *          the function that converts a {@link Result} into {@link O} constructor parameters
+   *          the function that converts a {@link Result} into constructor parameters
    */
   public ConstructorResultConverter(Class<?>[] constructorParameterTypes,
       Function<Result, Object[]> constructorParametersExtractor) {
@@ -61,12 +58,12 @@ public class ConstructorResultConverter<O> implements IConverter<Result, O> {
   }
 
   @Override
-  public boolean canConvert(Class<Result> inClass, Class<O> outClass) {
+  public boolean canConvert(Class<Result> inClass, Class<Object> outClass) {
     if (!Result.class.equals(inClass)) {
       return false;
     }
     try {
-      Constructor<O> constructor = outClass.getConstructor(constructorParameterTypes);
+      Constructor<?> constructor = outClass.getConstructor(constructorParameterTypes);
       return constructor != null;
     } catch (ReflectiveOperationException roe) {
       return false;
@@ -74,9 +71,10 @@ public class ConstructorResultConverter<O> implements IConverter<Result, O> {
   }
 
   @Override
-  public O convert(Result in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap) {
+  public Object convert(
+      Result in, Class<Object> outClass, Map<String, Object> extraParameterName2ValueMap) {
     try {
-      Constructor<O> constructor = outClass.getConstructor(constructorParameterTypes);
+      Constructor<?> constructor = outClass.getConstructor(constructorParameterTypes);
       Object[] arguments = constructorParametersExtractor.apply(in);
       return constructor.newInstance(arguments);
     } catch (ReflectiveOperationException roe) {

@@ -26,7 +26,7 @@ import java.util.function.Function;
 
 /**
  * <p>
- * A result converter that reflectively calls a {@link O} factory method corresponding to the given
+ * A result converter that reflectively calls a factory method corresponding to the given
  * parameter types. If no such method exists, {@link #canConvert(Class, Class)} returns
  * <code>false</code>.
  * </p>
@@ -37,7 +37,7 @@ import java.util.function.Function;
  * <ul>
  * <li>It is public;</li>
  * <li>It is static;</li>
- * <li>It returns a type which is {@link O} or a subtype of it.</li>
+ * <li>It returns a type which is or a subtype of it.</li>
  * </ul>
  * 
  * <p>
@@ -59,11 +59,8 @@ import java.util.function.Function;
  * </li>
  * <li><code>toString()</code> representation (avoid this one!)</li>
  * </ol>
- * 
- * @param <O>
- *          the output type
  */
-public class FactoryMethodResultConverter<O> implements IConverter<Result, O> {
+public class FactoryMethodResultConverter implements IConverter<Result, Object> {
 
   /** The method parameter types. */
   private final Class<?>[] methodParameterTypes;
@@ -74,7 +71,7 @@ public class FactoryMethodResultConverter<O> implements IConverter<Result, O> {
    * Creates the converter, using {@link Result#toArray(Class[])}.
    * 
    * @param methodParameterTypes
-   *          the expected {@link O} constructor parameter types
+   *          the expected constructor parameter types
    */
   public FactoryMethodResultConverter(Class<?>... methodParameterTypes) {
     this(methodParameterTypes, result -> result.toArray(methodParameterTypes));
@@ -84,9 +81,9 @@ public class FactoryMethodResultConverter<O> implements IConverter<Result, O> {
    * Creates the converter.
    * 
    * @param methodParameterTypes
-   *          the expected {@link O} constructor parameter types
+   *          the expected constructor parameter types
    * @param methodParametersExtractor
-   *          the function that converts a {@link Result} into {@link O} constructor parameters
+   *          the function that converts a {@link Result} into constructor parameters
    */
   public FactoryMethodResultConverter(Class<?>[] methodParameterTypes,
       Function<Result, Object[]> methodParametersExtractor) {
@@ -95,15 +92,15 @@ public class FactoryMethodResultConverter<O> implements IConverter<Result, O> {
   }
 
   @Override
-  public boolean canConvert(Class<Result> inClass, Class<O> outClass) {
+  public boolean canConvert(Class<Result> inClass, Class<Object> outClass) {
     Optional<Method> factoryMethodOpt = FactoryMethodResultConverterUtils.findFactoryMethod(
         outClass, methodParameterTypes);
     return factoryMethodOpt.isPresent();
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public O convert(Result in, Class<O> outClass, Map<String, Object> extraParameterName2ValueMap) {
+  public Object convert(
+      Result in, Class<Object> outClass, Map<String, Object> extraParameterName2ValueMap) {
     try {
       Optional<Method> factoryMethodOpt = FactoryMethodResultConverterUtils.findFactoryMethod(
           outClass, methodParameterTypes);
@@ -112,7 +109,7 @@ public class FactoryMethodResultConverter<O> implements IConverter<Result, O> {
           () -> new CommandLineException(
               "The converter '" + this + "' said it could convert from '"
                   + Result.class + "' to '" + outClass + "', but now it seems it cannot"));
-      return (O) factoryMethod.invoke(null, arguments);
+      return factoryMethod.invoke(null, arguments);
     } catch (ReflectiveOperationException roe) {
       throw new CommandLineException(roe);
     }

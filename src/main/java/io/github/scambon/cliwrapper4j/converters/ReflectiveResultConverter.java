@@ -91,44 +91,40 @@ import java.util.List;
  * <p>
  * All these combinations are tested for 1 delegate converter type before moving to the next one.
  * </p>
- * 
- * @param <O>
- *          the output type
  */
-public class ReflectiveResultConverter<O> extends CompositeConverter<Result, O> {
+public class ReflectiveResultConverter extends CompositeConverter<Result, Object> {
 
   /** The delegate converters. */
-  private static final List<IConverter<Result, ?>> DELEGATE_CONVERTERS = asList(
+  private static final List<IConverter<Result, Object>> DELEGATE_CONVERTERS = asList(
       // Constructors
-      new ConstructorResultConverter<>(Result.class),
-      new ConstructorResultConverter<>(String.class, String.class, Integer.class),
-      new ConstructorResultConverter<>(String.class, String.class, int.class),
-      new ConstructorResultConverter<>(String.class, String.class),
-      new ConstructorResultConverter<>(String.class, Integer.class),
-      new ConstructorResultConverter<>(String.class, int.class),
-      new ConstructorResultConverter<>(Integer.class, String.class),
-      new ConstructorResultConverter<>(int.class, String.class),
-      new ConstructorResultConverter<>(String.class),
-      new ConstructorResultConverter<>(Integer.class),
-      new ConstructorResultConverter<>(int.class),
+      new ConstructorResultConverter(Result.class),
+      new ConstructorResultConverter(String.class, String.class, Integer.class),
+      new ConstructorResultConverter(String.class, String.class, int.class),
+      new ConstructorResultConverter(String.class, String.class),
+      new ConstructorResultConverter(String.class, Integer.class),
+      new ConstructorResultConverter(String.class, int.class),
+      new ConstructorResultConverter(Integer.class, String.class),
+      new ConstructorResultConverter(int.class, String.class),
+      new ConstructorResultConverter(String.class),
+      new ConstructorResultConverter(Integer.class),
+      new ConstructorResultConverter(int.class),
       // Factory methods
-      new FactoryMethodResultConverter<>(Result.class),
-      new FactoryMethodResultConverter<>(String.class, String.class, Integer.class),
-      new FactoryMethodResultConverter<>(String.class, String.class, int.class),
-      new FactoryMethodResultConverter<>(String.class, String.class),
-      new FactoryMethodResultConverter<>(String.class, Integer.class),
-      new FactoryMethodResultConverter<>(String.class, int.class),
-      new FactoryMethodResultConverter<>(Integer.class, String.class),
-      new FactoryMethodResultConverter<>(int.class, String.class),
-      new FactoryMethodResultConverter<>(String.class),
-      new FactoryMethodResultConverter<>(Integer.class),
-      new FactoryMethodResultConverter<>(int.class));
+      new FactoryMethodResultConverter(Result.class),
+      new FactoryMethodResultConverter(String.class, String.class, Integer.class),
+      new FactoryMethodResultConverter(String.class, String.class, int.class),
+      new FactoryMethodResultConverter(String.class, String.class),
+      new FactoryMethodResultConverter(String.class, Integer.class),
+      new FactoryMethodResultConverter(String.class, int.class),
+      new FactoryMethodResultConverter(Integer.class, String.class),
+      new FactoryMethodResultConverter(int.class, String.class),
+      new FactoryMethodResultConverter(String.class),
+      new FactoryMethodResultConverter(Integer.class),
+      new FactoryMethodResultConverter(int.class));
 
   /**
    * Creates a reflective result converter.
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public ReflectiveResultConverter() {
-    super((List) DELEGATE_CONVERTERS);
+    super(DELEGATE_CONVERTERS);
   }
 }

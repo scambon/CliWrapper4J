@@ -43,7 +43,7 @@ public class CompositeConverter<I, O> implements IConverter<I, O> {
    *          the converters
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CompositeConverter(List<IConverter<? extends I, ? extends O>> converters) {
+  public CompositeConverter(List<? extends IConverter<? extends I, ? extends O>> converters) {
     this.converters = (List) converters;
   }
 
