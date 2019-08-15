@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.ProcessExecutor;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,10 +47,12 @@ import java.util.stream.Collectors;
  */
 public final class ExecutableNode implements ICommandLineNode {
 
-  /** The execution environment. */
-  private final IExecutionEnvironment executionEnvironment;
   /** The executable. */
   private final List<String> executable;
+  /** The instantiator. */
+  private final IInstantiator instantiator;
+  /** The execution environment. */
+  private final IExecutionEnvironment executionEnvironment;
   /** The command and options. */
   private final List<SwitchNode> switchNodes = new ArrayList<>();
 
@@ -69,11 +72,15 @@ public final class ExecutableNode implements ICommandLineNode {
    *
    * @param executable
    *          the executable
+   * @param instantiator
+   *          the instantiator
    * @param executionEnvironment
    *          the execution environment
    */
-  public ExecutableNode(String[] executable, IExecutionEnvironment executionEnvironment) {
+  public ExecutableNode(
+      String[] executable, IInstantiator instantiator, IExecutionEnvironment executionEnvironment) {
     this.executable = asList(executable);
+    this.instantiator = instantiator;
     this.executionEnvironment = executionEnvironment;
   }
 
@@ -131,14 +138,14 @@ public final class ExecutableNode implements ICommandLineNode {
       Method method, Map<String, Object> extraParameterName2ValueMap) {
     this.extraParameterName2ValueMap = extraParameterName2ValueMap;
     this.executor = getOrDefaultClass(
-        method, Executor.class, Executor::value, ProcessExecutor::new);
+        method, Executor.class, Executor::value, instantiator, ProcessExecutor::new);
     int[] expectedReturnCodeArray = getOrDefault(
         method, ReturnCode.class, ReturnCode::value, () -> new int[]{0});
     this.expectedReturnCodes = Arrays.stream(expectedReturnCodeArray)
         .boxed()
         .collect(toList());
     this.resultConverter = (IConverter<Result, ?>) getOrDefaultClass(
-        method, Converter.class, Converter::value, ResultConverter::new);
+        method, Converter.class, Converter::value, instantiator, ResultConverter::new);
   }
 
   @Override

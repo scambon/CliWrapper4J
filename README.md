@@ -233,13 +233,18 @@ An annotation for `@Switch` method parameters that are to be passed to the frame
 
 Usage include:
 - `IConverter#convert(Object, Class, Map)`
-- `IFlattener#flatten(java.util.List, String, Map)`
+- `IFlattener#flatten(List, String, Map)`
 - `IAggregator#aggregate(String, String, String, Map)`
 - `IExecutor#execute(List, IExecutionEnvironment, Map)`
 
 The meaning of the parameter values passed as `@Extra` arguments is left to the implementation of the above interfaces.
 
 This annotation is not compatible with `@Converter`: values are passed without conversion.
+
+### Instantiation
+Instantiation of annotation-defined classes such as converters is handled by an `IInstantiator`.
+The default instantiator uses reflection and 0-arg public constructors, and its results are cached.
+You can use your own instantiator by calling `new ReflectiveExecutableFactory<>(Class, IInstantiator)` instead of `new ReflectiveExecutableFactory<>(Class)`.
 
 
 ## Contributing

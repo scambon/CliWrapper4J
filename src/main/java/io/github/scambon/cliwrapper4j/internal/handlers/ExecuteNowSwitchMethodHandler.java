@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package io.github.scambon.cliwrapper4j.internal.handlers;
 
 import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 
 import java.lang.reflect.Method;
@@ -37,11 +38,14 @@ public class ExecuteNowSwitchMethodHandler
    *          the switch
    * @param executeNow
    *          the execute now
+   * @param instantiator
+   *          the instantiator
    */
-  public ExecuteNowSwitchMethodHandler(Method method, Switch zwitch, ExecuteNow executeNow) {
-    super(method, zwitch,
-        (executableNode, extraParameterName2ValueMap) ->
-            executableNode.setExecuteNowContext(method, extraParameterName2ValueMap));
+  public ExecuteNowSwitchMethodHandler(
+      Method method, Switch zwitch, ExecuteNow executeNow, IInstantiator instantiator) {
+    super(method, zwitch, instantiator,
+        (executableNode, extraParameterName2ValueMap) -> executableNode.setExecuteNowContext(method,
+            extraParameterName2ValueMap));
   }
 
   @Override

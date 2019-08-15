@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ package io.github.scambon.cliwrapper4j.internal.handlers;
 
 import io.github.scambon.cliwrapper4j.ExecuteLater;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 
 import java.lang.reflect.Method;
 
 /**
  * A method handler that works for @{@link ExecuteLater} methods.
  */
-public class ExecuteLaterSwitchMethodHandler
-    extends AbstractExecuteSwitchMethodHandler {
+public class ExecuteLaterSwitchMethodHandler extends AbstractExecuteSwitchMethodHandler {
 
   /**
    * Instantiates a new command with parameters method handler.
@@ -33,11 +33,13 @@ public class ExecuteLaterSwitchMethodHandler
    *          the method
    * @param executeLater
    *          the command
+   * @param instantiator
+   *          the instantiator
    */
-  public ExecuteLaterSwitchMethodHandler(Method method, Switch zwitch, ExecuteLater executeLater) {
-    super(method, zwitch,
-        (executableNode, extraParameterName2ValueMap) ->
-            executableNode.setExecuteLaterContext(
-                method, executeLater, extraParameterName2ValueMap));
+  public ExecuteLaterSwitchMethodHandler(
+      Method method, Switch zwitch, ExecuteLater executeLater, IInstantiator instantiator) {
+    super(method, zwitch, instantiator,
+        (executableNode, extraParameterName2ValueMap) -> executableNode.setExecuteLaterContext(
+            method, executeLater, extraParameterName2ValueMap));
   }
 }

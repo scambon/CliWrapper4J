@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.github.scambon.cliwrapper4j.internal.handlers;
 import io.github.scambon.cliwrapper4j.ExecuteLater;
 import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 
 import java.lang.reflect.Method;
@@ -43,12 +44,15 @@ public class AbstractExecuteSwitchMethodHandler
    *          the method
    * @param zwitch
    *          the switch
+   * @param instantiator
+   *          the instantiator
    * @param executableNodeConfigurator
    *          the executable node configurator
    */
   public AbstractExecuteSwitchMethodHandler(Method method, Switch zwitch,
+      IInstantiator instantiator,
       BiConsumer<ExecutableNode, Map<String, Object>> executableNodeConfigurator) {
-    super(method, zwitch);
+    super(method, zwitch, instantiator);
     this.executableNodeConfigurator = executableNodeConfigurator;
   }
 

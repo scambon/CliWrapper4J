@@ -1,4 +1,4 @@
-/* Copyright 2018 Sylvain Cambon
+/* Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,8 @@ import io.github.scambon.cliwrapper4j.converters.IConverter;
 import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
 
 import java.lang.annotation.Annotation;
@@ -67,6 +69,24 @@ public final class ExecutableSubInterfaceChecker {
   private static final List<Class<? extends Annotation>> PARAMETER_ANNOTATIONS = Arrays.asList(
       Converter.class,
       Extra.class);
+  
+  /** The instantiator. */
+  private final IInstantiator instantiator;
+  
+  /**
+   * Creates the checker.
+   */
+  public ExecutableSubInterfaceChecker() {
+    this(new ReflectiveInstantiator());
+  }
+  
+  /**
+   * Creates the checker.
+   * @param instantiator the instantiator
+   */
+  public ExecutableSubInterfaceChecker(IInstantiator instantiator) {
+    this.instantiator = instantiator;
+  }
 
   /**
    * Validates the interface.
@@ -314,7 +334,7 @@ public final class ExecutableSubInterfaceChecker {
 
       // Check @Converter compatibility
       if (converterAnnotation != null) {
-        IConverter converter = createInstance(converterAnnotation, Converter::value);
+        IConverter converter = createInstance(converterAnnotation, Converter::value, instantiator);
         Class<?> parameterType = parameter.getType();
         boolean canConvert = converter.canConvert(parameterType, String.class);
         if (!canConvert) {
@@ -385,7 +405,7 @@ public final class ExecutableSubInterfaceChecker {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteNowMethod(Method executeNowMethod, Diagnostic diagnostic) {
     IConverter resultConverter = getOrDefaultClass(
-        executeNowMethod, Converter.class, Converter::value, ResultConverter::new);
+        executeNowMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
     Class<?> returnType = executeNowMethod.getReturnType();
     boolean canConvert = resultConverter.canConvert(Result.class, returnType);
     if (!canConvert) {
@@ -405,7 +425,7 @@ public final class ExecutableSubInterfaceChecker {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteLaterMethod(Method executeLaterMethod, Diagnostic diagnostic) {
     IConverter resultConverter = getOrDefaultClass(
-        executeLaterMethod, Converter.class, Converter::value, ResultConverter::new);
+        executeLaterMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
     ExecuteLater executeLaterAnnotation = executeLaterMethod.getAnnotation(ExecuteLater.class);
     Class<?> outType = executeLaterAnnotation.value();
     boolean canConvert = resultConverter.canConvert(Result.class, outType);

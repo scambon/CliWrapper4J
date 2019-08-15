@@ -29,14 +29,18 @@ import io.github.scambon.cliwrapper4j.example.IJavaCommandLine;
 import io.github.scambon.cliwrapper4j.example.ISystemVariableCommandLine;
 import io.github.scambon.cliwrapper4j.example.IUnhandledMethodsCommandLine;
 import io.github.scambon.cliwrapper4j.example.Version;
+import io.github.scambon.cliwrapper4j.example.VersionResultConverter;
 import io.github.scambon.cliwrapper4j.example.VirtualMachineType;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -237,5 +241,29 @@ public class ReflectiveExecutableFactoryTest {
     ISystemVariableCommandLine cli = systemVariableFactory.create(environment);
     String output = cli.doIt();
     assertTrue(output.contains("Hello LLAMA"));
+  }
+  
+  @Test
+  public void testCustomInstantiator() {
+    List<Class<?>> requestedClasses = new ArrayList<>();
+    IInstantiator interceptingInstantiator = new IInstantiator() {
+      private IInstantiator delegate = new ReflectiveInstantiator();
+      @Override
+      public boolean canCreate(Class<?> clazz) {
+        return delegate.canCreate(clazz);
+      }
+      
+      @Override
+      public <T> T create(Class<T> clazz) throws CommandLineException {
+        requestedClasses.add(clazz);
+        return delegate.create(clazz);
+      }
+    };
+    IExecutableFactory<IJavaCommandLine> javaFactory2 =
+        new ReflectiveExecutableFactory<>(IJavaCommandLine.class, interceptingInstantiator);
+    IJavaCommandLine java = javaFactory2.create();
+    Version version = java.version();
+    assertNotNull(version);
+    assertTrue(requestedClasses.contains(VersionResultConverter.class));
   }
 }
