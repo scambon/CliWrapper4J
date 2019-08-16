@@ -15,8 +15,6 @@
 
 package io.github.scambon.cliwrapper4j.instantiators;
 
-import io.github.scambon.cliwrapper4j.CommandLineException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +45,7 @@ public class CachingInstantiator implements IInstantiator {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T create(Class<T> clazz) throws CommandLineException {
-    Object instance = class2InstanceMap.get(clazz);
-    if (instance == null) {
-      instance = delegate.create(clazz);
-      class2InstanceMap.put(clazz, instance);
-    }
-    return (T) instance;
+  public <T> T create(Class<T> clazz) {
+    return (T) class2InstanceMap.computeIfAbsent(clazz, delegate::create);
   }
 }

@@ -36,7 +36,7 @@ public class ReflectiveInstantiator implements IInstantiator {
   }
 
   @Override
-  public <T> T create(Class<T> clazz) throws CommandLineException {
+  public <T> T create(Class<T> clazz) {
     try {
       Constructor<T> constructor = clazz.getConstructor();
       return constructor.newInstance();

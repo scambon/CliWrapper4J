@@ -15,8 +15,6 @@
 
 package io.github.scambon.cliwrapper4j.instantiators;
 
-import io.github.scambon.cliwrapper4j.CommandLineException;
-
 /**
  * An interface that creates class instances.
  */
@@ -40,9 +38,7 @@ public interface IInstantiator {
    * @param clazz
    *          the class to instantiate
    * @return the class instance
-   * @throws CommandLineException
-   *           if an instantiation problem occurred
    * @see #canCreate(Class)
    */
-  <T> T create(Class<T> clazz) throws CommandLineException;
+  <T> T create(Class<T> clazz);
 }
