@@ -21,6 +21,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import io.github.scambon.cliwrapper4j.Aggregator;
+import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteLater;
@@ -69,20 +70,22 @@ public final class ExecutableSubInterfaceChecker {
   private static final List<Class<? extends Annotation>> PARAMETER_ANNOTATIONS = Arrays.asList(
       Converter.class,
       Extra.class);
-  
+
   /** The instantiator. */
   private final IInstantiator instantiator;
-  
+
   /**
    * Creates the checker.
    */
   public ExecutableSubInterfaceChecker() {
     this(new ReflectiveInstantiator());
   }
-  
+
   /**
    * Creates the checker.
-   * @param instantiator the instantiator
+   * 
+   * @param instantiator
+   *          the instantiator
    */
   public ExecutableSubInterfaceChecker(IInstantiator instantiator) {
     this.instantiator = instantiator;
@@ -294,7 +297,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchFlattenerAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Flattener flattenerAnnotation = switchMethod.getAnnotation(Flattener.class);
     Class<? extends IFlattener> flattenerClass = flattenerAnnotation.flattener();
-    checkReflectivelyCreatable(switchMethod, "@Flattener class", flattenerClass, diagnostic);
+    checkInstantiable(switchMethod, Flattener.class, flattenerClass, diagnostic);
   }
 
   /**
@@ -308,7 +311,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchAggregatorAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Aggregator aggregatorAnnotation = switchMethod.getAnnotation(Aggregator.class);
     Class<? extends IAggregator> aggregatorClass = aggregatorAnnotation.aggregator();
-    checkReflectivelyCreatable(switchMethod, "@Aggregator class", aggregatorClass, diagnostic);
+    checkInstantiable(switchMethod, Aggregator.class, aggregatorClass, diagnostic);
   }
 
   /**
@@ -319,7 +322,6 @@ public final class ExecutableSubInterfaceChecker {
    * @param diagnostic
    *          the diagnostic
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkSwitchMethodParameters(Method switchMethod, Diagnostic diagnostic) {
     Set<String> extraParameterNames = new HashSet<>();
     for (Parameter parameter : switchMethod.getParameters()) {
@@ -334,14 +336,8 @@ public final class ExecutableSubInterfaceChecker {
 
       // Check @Converter compatibility
       if (converterAnnotation != null) {
-        IConverter converter = createInstance(converterAnnotation, Converter::value, instantiator);
-        Class<?> parameterType = parameter.getType();
-        boolean canConvert = converter.canConvert(parameterType, String.class);
-        if (!canConvert) {
-          diagnostic.addIssue(switchMethod,
-              "Cannot convert its parameter '" + parameter
-                  + "' from '" + parameterType + "' to '" + String.class + "'");
-        }
+        checkSwitchMethodParameterConverter(
+            switchMethod, parameter, converterAnnotation, diagnostic);
       }
 
       // Check @Extra parameter
@@ -354,6 +350,37 @@ public final class ExecutableSubInterfaceChecker {
         }
         extraParameterNames.add(extraParameterName);
       }
+    }
+  }
+
+  /**
+   * Checks a switch method parameter converter.
+   *
+   * @param switchMethod
+   *          the switch method
+   * @param parameter
+   *          the parameter
+   * @param converterAnnotation
+   *          the converter annotation
+   * @param diagnostic
+   *          the diagnostic
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private void checkSwitchMethodParameterConverter(
+      Method switchMethod, Parameter parameter, Converter converterAnnotation,
+      Diagnostic diagnostic) {
+    try {
+      IConverter converter = createInstance(
+          converterAnnotation, Converter::value, instantiator);
+      Class<?> parameterType = parameter.getType();
+      boolean canConvert = converter.canConvert(parameterType, String.class);
+      if (!canConvert) {
+        diagnostic.addIssue(switchMethod,
+            "Cannot convert its parameter '" + parameter
+                + "' from '" + parameterType + "' to '" + String.class + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(switchMethod, cle.getMessage());
     }
   }
 
@@ -404,13 +431,17 @@ public final class ExecutableSubInterfaceChecker {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteNowMethod(Method executeNowMethod, Diagnostic diagnostic) {
-    IConverter resultConverter = getOrDefaultClass(
-        executeNowMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
-    Class<?> returnType = executeNowMethod.getReturnType();
-    boolean canConvert = resultConverter.canConvert(Result.class, returnType);
-    if (!canConvert) {
-      diagnostic.addIssue(executeNowMethod,
-          "Cannot convert its return type to '" + returnType + "'");
+    try {
+      IConverter resultConverter = getOrDefaultClass(
+          executeNowMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
+      Class<?> returnType = executeNowMethod.getReturnType();
+      boolean canConvert = resultConverter.canConvert(Result.class, returnType);
+      if (!canConvert) {
+        diagnostic.addIssue(executeNowMethod,
+            "Cannot convert its return type to '" + returnType + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(executeNowMethod, cle.getMessage());
     }
   }
 
@@ -424,14 +455,19 @@ public final class ExecutableSubInterfaceChecker {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteLaterMethod(Method executeLaterMethod, Diagnostic diagnostic) {
-    IConverter resultConverter = getOrDefaultClass(
-        executeLaterMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
-    ExecuteLater executeLaterAnnotation = executeLaterMethod.getAnnotation(ExecuteLater.class);
-    Class<?> outType = executeLaterAnnotation.value();
-    boolean canConvert = resultConverter.canConvert(Result.class, outType);
-    if (!canConvert) {
-      diagnostic.addIssue(executeLaterMethod,
-          "Cannot convert its future return type to '" + outType + "'");
+    try {
+      IConverter resultConverter = getOrDefaultClass(
+          executeLaterMethod, Converter.class, Converter::value, instantiator,
+          ResultConverter::new);
+      ExecuteLater executeLaterAnnotation = executeLaterMethod.getAnnotation(ExecuteLater.class);
+      Class<?> outType = executeLaterAnnotation.value();
+      boolean canConvert = resultConverter.canConvert(Result.class, outType);
+      if (!canConvert) {
+        diagnostic.addIssue(executeLaterMethod,
+            "Cannot convert its future return type to '" + outType + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(executeLaterMethod, cle.getMessage());
     }
   }
 
@@ -446,7 +482,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkExecutorAnnotation(Method executeMethod, Diagnostic diagnostic) {
     Executor executorAnnotation = executeMethod.getAnnotation(Executor.class);
     Class<? extends IExecutor> executorClass = executorAnnotation.value();
-    checkReflectivelyCreatable(executeMethod, "@Executor", executorClass, diagnostic);
+    checkInstantiable(executeMethod, Executor.class, executorClass, diagnostic);
   }
 
   /**
@@ -486,31 +522,33 @@ public final class ExecutableSubInterfaceChecker {
   }
 
   /**
-   * Checks if a method is reflectively creatable.
+   * Checks if a class is instantiable.
    *
    * @param annotatedElement
    *          the annotated element
-   * @param field
-   *          the field
+   * @param annotation
+   *          the annotation
    * @param clazz
    *          the class to check
    * @param diagnostic
    *          the diagnostic
    */
-  private void checkReflectivelyCreatable(
-      AnnotatedElement annotatedElement, String field, Class<?> clazz, Diagnostic diagnostic) {
-    boolean isReflectivelyCreatable = stream(clazz.getConstructors())
-        .filter(constructor -> constructor.getParameterCount() == 0)
-        .anyMatch(constructor -> Modifier.isPublic(constructor.getModifiers()));
-    if (!isReflectivelyCreatable) {
+  private void checkInstantiable(
+      AnnotatedElement annotatedElement, Class<? extends Annotation> annotation, Class<?> clazz,
+      Diagnostic diagnostic) {
+    if (!instantiator.canCreate(clazz)) {
+      String annotationString = getAnnotationRepresentation(annotation);
       diagnostic.addIssue(annotatedElement,
-          "The " + field + " class '" + clazz + "' must have a public 0-arg constructor");
+          "The " + annotationString + " class '" + clazz
+              + "' cannot be created by the instantiator '" + instantiator + "'");
     }
   }
 
   /**
    * Gets the annotation string representation.
-   * @param annotationType the annotation type
+   * 
+   * @param annotationType
+   *          the annotation type
    * @return the string representation
    */
   private static String getAnnotationRepresentation(Class<? extends Annotation> annotationType) {

@@ -54,6 +54,8 @@ public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
           "Error", error, out, encoding, this::onError, extraParameterName2ValueMap);
       errorStreamGobblerThread.start();
       int returnCode = process.waitFor();
+      standardStreamGobblerThread.join();
+      errorStreamGobblerThread.join();
       return getResult(returnCode, extraParameterName2ValueMap);
     } catch (InterruptedException interruptedException) {
       Thread.currentThread().interrupt();

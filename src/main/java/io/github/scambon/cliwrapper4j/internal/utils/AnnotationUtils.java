@@ -15,6 +15,7 @@
 
 package io.github.scambon.cliwrapper4j.internal.utils;
 
+import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 
 import java.lang.annotation.Annotation;
@@ -106,6 +107,10 @@ public final class AnnotationUtils {
   public static <A extends Annotation, V> V createInstance(A annotation,
       Function<A, Class<? extends V>> getter, IInstantiator instantiator) {
     Class<? extends V> classValue = getter.apply(annotation);
+    if (!instantiator.canCreate(classValue)) {
+      throw new CommandLineException(
+          "Instantiator '" + instantiator + "' cannot create class '" + classValue + "'");
+    }
     return instantiator.create(classValue);
   }
 }

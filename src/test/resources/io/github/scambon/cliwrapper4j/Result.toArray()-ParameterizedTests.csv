@@ -1,0 +1,12 @@
+Type,value
+Result,"Result [output='output', error='error', returnCode='0']"
+String;String;int,output;error;0
+String;String;Integer,output;error;0
+String;String,output;error
+String;int,output;0
+String;Integer,output;0
+String,output
+int,0
+Integer,0
+Void,null
+void,null

@@ -20,8 +20,8 @@ import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Switch;
 
-@Executable({"cmd", "/C", "echo Hello %SOME_VARIABLE%"})
-public interface ISystemVariableCommandLine extends IExecutable {
+@Executable({"/bin/bash", "system_variable.sh"})
+public interface ILinuxSystemVariableCommandLine extends IExecutable {
 
   @Switch("")
   @ExecuteNow

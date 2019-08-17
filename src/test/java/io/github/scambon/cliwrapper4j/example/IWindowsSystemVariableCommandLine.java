@@ -17,17 +17,13 @@ package io.github.scambon.cliwrapper4j.example;
 
 import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteNow;
-import io.github.scambon.cliwrapper4j.Executor;
-import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.IExecutable;
-import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.Switch;
 
-@Executable({"cmd", "/C", "hello"})
-public interface IInterractiveHelloCommandLine extends IExecutable {
+@Executable({"cmd", "/C", "system_variable"})
+public interface IWindowsSystemVariableCommandLine extends IExecutable {
 
   @Switch("")
   @ExecuteNow
-  @Executor(InterractiveHelloProcessExecutor.class)
-  Result hello(int waitingTime, @Extra("name") String name);
+  String doIt();
 }

@@ -68,6 +68,7 @@
 
 	<properties>
 		<!-- Dependency versions -->
+		<hamcrest.version>2.1</hamcrest.version>
 		<junit.version>5.5.1</junit.version>
 
 		<!-- Plugin versions -->
@@ -93,10 +94,23 @@
 	</properties>
 
 	<dependencies>
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
