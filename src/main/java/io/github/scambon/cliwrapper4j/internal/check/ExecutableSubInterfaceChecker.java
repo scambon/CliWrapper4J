@@ -41,6 +41,8 @@ import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
+import io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils;
+import io.github.scambon.cliwrapper4j.preprocessors.ICommandLinePreProcessor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -132,6 +134,11 @@ public final class ExecutableSubInterfaceChecker {
       } else if (executable[0].isEmpty()) {
         diagnostic.addIssue(executableInterface, "Illegal empty executable name");
       }
+      Class<? extends ICommandLinePreProcessor>[] preProcessors =
+          executableAnnotation.preProcessors();
+      for (Class<? extends ICommandLinePreProcessor> preProcessor : preProcessors) {
+        checkInstantiable(executableInterface, Executable.class, preProcessor, diagnostic);
+      }
     }
   }
 
@@ -218,9 +225,9 @@ public final class ExecutableSubInterfaceChecker {
           .map(method::getAnnotation)
           .anyMatch(Objects::nonNull);
       if (!thenRequireFound) {
-        String ifHasString = getAnnotationRepresentation(ifHas);
+        String ifHasString = AnnotationUtils.getAnnotationRepresentation(ifHas);
         String thenRequireString = stream(thenRequire)
-            .map(ExecutableSubInterfaceChecker::getAnnotationRepresentation)
+            .map(AnnotationUtils::getAnnotationRepresentation)
             .collect(toList())
             .toString();
         diagnostic.addIssue(method,
@@ -244,7 +251,8 @@ public final class ExecutableSubInterfaceChecker {
     for (Class<? extends Annotation> methodAnnotation : METHOD_ANNOTATIONS) {
       Annotation annotation = method.getAnnotation(methodAnnotation);
       if (annotation != null) {
-        String methodAnnotationString = getAnnotationRepresentation(methodAnnotation);
+        String methodAnnotationString = AnnotationUtils
+            .getAnnotationRepresentation(methodAnnotation);
         diagnostic.addIssue(method,
             "Ignored method should not have an '" + methodAnnotationString + "'");
       }
@@ -512,7 +520,8 @@ public final class ExecutableSubInterfaceChecker {
       for (Class<? extends Annotation> parameterAnnotation : PARAMETER_ANNOTATIONS) {
         Annotation annotation = parameter.getAnnotation(parameterAnnotation);
         if (annotation != null) {
-          String parameterAnnotationString = getAnnotationRepresentation(parameterAnnotation);
+          String parameterAnnotationString = AnnotationUtils
+              .getAnnotationRepresentation(parameterAnnotation);
           diagnostic.addIssue(method,
               "Ignored method should not have an '" + parameterAnnotationString
                   + "' on its parameter '" + parameter + "'");
@@ -537,22 +546,10 @@ public final class ExecutableSubInterfaceChecker {
       AnnotatedElement annotatedElement, Class<? extends Annotation> annotation, Class<?> clazz,
       Diagnostic diagnostic) {
     if (!instantiator.canCreate(clazz)) {
-      String annotationString = getAnnotationRepresentation(annotation);
+      String annotationString = AnnotationUtils.getAnnotationRepresentation(annotation);
       diagnostic.addIssue(annotatedElement,
           "The " + annotationString + " class '" + clazz
               + "' cannot be created by the instantiator '" + instantiator + "'");
     }
-  }
-
-  /**
-   * Gets the annotation string representation.
-   * 
-   * @param annotationType
-   *          the annotation type
-   * @return the string representation
-   */
-  private static String getAnnotationRepresentation(Class<? extends Annotation> annotationType) {
-    String annotationName = annotationType.getSimpleName();
-    return "@" + annotationName;
   }
 }

@@ -32,6 +32,7 @@ import io.github.scambon.cliwrapper4j.internal.handlers.IMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.SwitchMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.UnhandledMethodHandler;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
+import io.github.scambon.cliwrapper4j.preprocessors.ICommandLinePreProcessor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -82,7 +83,10 @@ public final class ExecutableHandler<W extends IExecutable>
     this.method2HandlerMap = method2HandlerMap;
     Executable executableAnnotation = commandLineWrapperInterface.getAnnotation(Executable.class);
     String[] executable = executableAnnotation.value();
-    this.executableNode = new ExecutableNode(executable, instantiator, executionEnvironment);
+    Class<? extends ICommandLinePreProcessor>[] preProcessorClasses =
+        executableAnnotation.preProcessors();
+    this.executableNode = new ExecutableNode(executable, preProcessorClasses, instantiator,
+        executionEnvironment);
   }
 
   /**

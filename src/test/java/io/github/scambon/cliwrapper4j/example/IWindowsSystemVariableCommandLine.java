@@ -19,8 +19,9 @@ import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.preprocessors.PrependWindowsCmdPreProcessor;
 
-@Executable({"cmd", "/C", "system_variable"})
+@Executable(value = "system_variable", preProcessors = PrependWindowsCmdPreProcessor.class)
 public interface IWindowsSystemVariableCommandLine extends IExecutable {
 
   @Switch("")

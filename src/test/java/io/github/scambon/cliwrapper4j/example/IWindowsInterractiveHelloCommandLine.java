@@ -22,8 +22,9 @@ import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.preprocessors.PrependWindowsCmdPreProcessor;
 
-@Executable({"cmd", "/C", "hello"})
+@Executable(value = "hello", preProcessors = PrependWindowsCmdPreProcessor.class)
 public interface IWindowsInterractiveHelloCommandLine extends IExecutable {
 
   @Switch("")

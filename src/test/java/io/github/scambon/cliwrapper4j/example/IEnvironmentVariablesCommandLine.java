@@ -17,18 +17,19 @@ package io.github.scambon.cliwrapper4j.example;
 
 import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteNow;
-import io.github.scambon.cliwrapper4j.Executor;
-import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.IExecutable;
-import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.Switch;
-import io.github.scambon.cliwrapper4j.preprocessors.PrependLinuxBinBashPreProcessor;
+import io.github.scambon.cliwrapper4j.preprocessors.EnvironmentVariablesPreProcessor;
 
-@Executable(value = "hello.sh", preProcessors = PrependLinuxBinBashPreProcessor.class)
-public interface ILinuxInterractiveHelloCommandLine extends IExecutable {
+@Executable(value = {"foo", "${arg_executable_alone}",
+    "before-${arg_executable_middle}-after"}, preProcessors = EnvironmentVariablesPreProcessor.class)
+public interface IEnvironmentVariablesCommandLine extends IExecutable {
 
-  @Switch("")
+  @Switch("${arg_switch} - ${arg_unprovided}")
   @ExecuteNow
-  @Executor(InterractiveHelloProcessExecutor.class)
-  Result hello(int waitingTime, @Extra("name") String name);
+  void executeWithEnvironmentVariables();
+
+  @Switch("${NOT_OVERWRITTEN} - ${OVERWRITTEN}")
+  @ExecuteNow
+  void executeWithSystemAndEnvironmentVariables();
 }

@@ -6,6 +6,10 @@
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="4"/>
     </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="NOT_OVERWRITTEN" value="N"/>
+        <mapEntry key="OVERWRITTEN" value="M"/>
+    </mapAttribute>
     <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=io.github.scambon.cliwrapper4j"/>
     <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>

@@ -13,18 +13,15 @@
  * limitations under the License.
  */
 
-package io.github.scambon.cliwrapper4j.example;
+package io.github.scambon.cliwrapper4j.preprocessors;
 
-import io.github.scambon.cliwrapper4j.Executable;
-import io.github.scambon.cliwrapper4j.ExecuteNow;
-import io.github.scambon.cliwrapper4j.IExecutable;
-import io.github.scambon.cliwrapper4j.Switch;
-import io.github.scambon.cliwrapper4j.preprocessors.PrependLinuxBinBashPreProcessor;
+/**
+ * A pre-processor that prepends <code>cmd /C</code> segments. This can be used to run
+ * <code>.bat</code> scripts.
+ */
+public final class PrependWindowsCmdPreProcessor extends AbstractPrependPreProcessor {
 
-@Executable(value = "system_variable.sh", preProcessors = PrependLinuxBinBashPreProcessor.class)
-public interface ILinuxSystemVariableCommandLine extends IExecutable {
-
-  @Switch("")
-  @ExecuteNow
-  String doIt();
+  public PrependWindowsCmdPreProcessor() {
+    super("cmd", "/C");
+  }
 }

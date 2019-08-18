@@ -121,7 +121,6 @@ Then, define your methods and annotate them with `@Switch`; some of them will be
 There is no need to implement this interface yourself, use a `IExecutableFactory` instead.
 You can still define and implement static methods, default methods or even private methods (JDK9+) in your sub-interface.
 
-
 ### @Switch
 
 An annotation that describes a switch, i.e. a tag and values to be added to the command line.
@@ -187,6 +186,23 @@ This should only defined along with a `@Switch` annotation.
 ### @Aggregator and IAggregator
 An annotation that describes how to aggregate a switch and its flattened parameter values, using the `#aggregator()` class configured with the `#value()` as its parameter.
 This should only defined along with a `@Switch` annotation.
+
+
+### Pre-Processors
+
+You can modify the command line before it is called by providing implementations of `ICommandLinePreProcessor` to the executable annotation: `@Executable(preProcessors={...})`.
+
+Pre-processors are chained, i.e. the result of pre-processor 1 is passed to pre-processor 2...
+The final command line elements are then executed by the `IExecutor`.
+
+Predefined pre-processors are:
+- `EnvironmentVariablesPreProcessor`: replaces occurrences of `${SOME_VARIABLE}` by the corresponding value.
+  Values come from (by order or priority):
+  - `IExecutionEnvironment#getEnvironmentVariables()`
+  - System properties
+- `PrependLinuxBinBashPreProcessor`: adds `/bin/bash` before your command line, e.g. to run `.sh` scripts
+- `PrependWindowsCmdPreProcessor`: adds `cmd /C` before your command line, e.g. to run `.bat` scripts
+- `AbstractPrependPreProcessor`: adds some segments before your command line
 
 
 ### Execution

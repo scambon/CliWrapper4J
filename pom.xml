@@ -192,6 +192,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${surefire.version}</version>
 				<configuration>
+					<environmentVariables>
+						<NOT_OVERWRITTEN>N</NOT_OVERWRITTEN>
+						<OVERWRITTEN>M</OVERWRITTEN>
+					</environmentVariables>
 					<argLine>@{argLine}</argLine>
 					<trimStackTrace>false</trimStackTrace>
 				</configuration>
