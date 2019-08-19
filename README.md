@@ -32,8 +32,7 @@ Get it from Maven Central:
 [![Tested on Java 8, 9, 11, 12, 13](https://img.shields.io/badge/Tested%20with-Java%208%2C%209%2C%2011%2C%2012%2C%2013-brightgreen)](https://travis-ci.org/scambon/CliWrapper4J)
 [![Travis CI](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
 [![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=sqale_rating&branch=master)](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
-
-
+[![GitHub](https://img.shields.io/github/license/scambon/CliWrapper4J)](https://github.com/scambon/CliWrapper4J/blob/develop/LICENSE)
 
 
 ## Example
@@ -263,6 +262,12 @@ The default instantiator uses reflection and 0-arg public constructors, and its 
 You can use your own instantiator by calling `new ReflectiveExecutableFactory<>(Class, IInstantiator)` instead of `new ReflectiveExecutableFactory<>(Class)`.
 
 
+## Licensing
+
+This project is distributed under the Apache Software License 2.0.
+
+
 ## Contributing
 
+Contributions are welcome!
 See [Contributing](CONTRIBUTING.md).
