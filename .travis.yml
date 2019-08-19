@@ -69,7 +69,7 @@ jobs:
         - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
         - "[[ $TRAVIS_BRANCH =~ ^master|develop$ ]] && maven_goal='deploy' || maven_goal='verify'"
         - echo Run Maven till goal $maven_goal on branch $TRAVIS_BRANCH
-        - mvn --settings settings.xml clean $maven_goal --activate-profiles release
+        - mvn --settings settings.xml clean $maven_goal --activate-profiles deploy
         - project_version=$(sed -n 's/version=//p' target/maven-archiver/pom.properties)
         - echo Detected version $project_version
       deploy:
