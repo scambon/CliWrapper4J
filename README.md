@@ -22,7 +22,7 @@ Get it from Maven Central:
 <dependency>
   <groupId>io.github.scambon</groupId>
   <artifactId>io.github.scambon.cliwrapper4j</artifactId>
-  <version>1.0.2</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -33,6 +33,7 @@ Get it from Maven Central:
 [![Travis CI](https://travis-ci.org/scambon/CliWrapper4J.svg?branch=master)](https://travis-ci.org/scambon/CliWrapper4J)
 [![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=scambon_CliWrapper4J&metric=sqale_rating&branch=master)](https://sonarcloud.io/dashboard?id=scambon_CliWrapper4J)
 [![GitHub](https://img.shields.io/github/license/scambon/CliWrapper4J)](https://github.com/scambon/CliWrapper4J/blob/develop/LICENSE)
+_(Badges can take up to a day or 2 to show latest information; sometimes, these external resources even fail to load)_
 
 
 ## Example
