@@ -47,6 +47,10 @@ cache:
   directories:
     - ~/.m2/repository
 
+git:
+  # Disable depth and enable getting all branches, which is good for SonarQube
+  depth: false
+
 addons:
   sonarcloud:
     organization: "scambon-github"

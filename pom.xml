@@ -179,10 +179,17 @@
 				<version>${jacoco.version}</version>
 				<executions>
 					<execution>
+						<id>instrument-tests</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
-						<phase>generate-resources</phase>
+					</execution>
+					<execution>
+						<!-- Generate XML report for SonarQube -->
+						<id>generate-coverage-report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

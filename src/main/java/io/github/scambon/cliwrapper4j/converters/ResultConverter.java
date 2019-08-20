@@ -24,8 +24,8 @@ import io.github.scambon.cliwrapper4j.Result;
  * <ul>
  * <li>{@link Result} returns the same {@link Result}</li>
  * <li>{@link String} returns to the method output stream contents</li>
- * <li>{@link int} and {@link Integer} returns to the return code</li>
- * <li>{@link void} and {@link Void} returns nothing</li>
+ * <li><code>int</code> and {@link Integer} returns to the return code</li>
+ * <li><code>void</code> and {@link Void} returns nothing</li>
  * <li>Other: the {@link ReflectiveResultConverter} is used to create the output instance</li>
  * </ul>
  */
