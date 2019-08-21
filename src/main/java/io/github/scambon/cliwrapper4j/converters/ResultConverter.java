@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +24,9 @@ import io.github.scambon.cliwrapper4j.Result;
  * <ul>
  * <li>{@link Result} returns the same {@link Result}</li>
  * <li>{@link String} returns to the method output stream contents</li>
- * <li>{@link int} and {@link Integer} returns to the return code</li>
- * <li>{@link void} and {@link Void} returns nothing</li>
+ * <li><code>int</code> and {@link Integer} returns to the return code</li>
+ * <li><code>void</code> and {@link Void} returns nothing</li>
+ * <li>Other: the {@link ReflectiveResultConverter} is used to create the output instance</li>
  * </ul>
  */
 public final class ResultConverter extends CompositeConverter<Result, Object> {
@@ -39,6 +41,7 @@ public final class ResultConverter extends CompositeConverter<Result, Object> {
         new LambdaConverter<>(Result.class, int.class, Result::getReturnCode),
         new LambdaConverter<>(Result.class, Integer.class, Result::getReturnCode),
         new LambdaConverter<>(Result.class, void.class, result -> null),
-        new LambdaConverter<>(Result.class, Void.class, result -> null));
+        new LambdaConverter<>(Result.class, Void.class, result -> null),
+        new ReflectiveResultConverter());
   }
 }

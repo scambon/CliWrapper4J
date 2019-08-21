@@ -6,4 +6,7 @@
     <file-match-pattern match-pattern="module-info.java" include-pattern="false"/>
   </fileset>
   <filter name="DerivedFiles" enabled="true"/>
+  <filter name="FilesFromPackage" enabled="true">
+    <filter-data value="src/test/java"/>
+  </filter>
 </fileset-config>

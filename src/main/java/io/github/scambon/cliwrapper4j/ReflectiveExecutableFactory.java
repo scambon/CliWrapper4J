@@ -1,4 +1,5 @@
-/* Copyright 2018-2019 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +17,9 @@
 package io.github.scambon.cliwrapper4j;
 
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
+import io.github.scambon.cliwrapper4j.instantiators.CachingInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
 import io.github.scambon.cliwrapper4j.internal.handlers.IMethodHandler;
 
@@ -39,17 +43,32 @@ public class ReflectiveExecutableFactory<W extends IExecutable>
   private final Map<Method, IMethodHandler> method2HandlerMap;
   /** The proxy constructor. */
   private final Function<ExecutableHandler<W>, W> proxyConstructor;
+  /** The instantiator. */
+  private final IInstantiator instantiator;
+
+  /**
+   * Instantiates a factory with default reflective handling of constructors.
+   *
+   * @param executableInterface
+   *          the executable interface
+   */
+  public ReflectiveExecutableFactory(Class<W> executableInterface) {
+    this(executableInterface, new CachingInstantiator(new ReflectiveInstantiator()));
+  }
 
   /**
    * Instantiates a factory.
    *
    * @param executableInterface
    *          the executable interface
+   * @param instantiator
+   *          the instantiator
    */
   @SuppressWarnings("unchecked")
-  public ReflectiveExecutableFactory(Class<W> executableInterface) {
+  public ReflectiveExecutableFactory(Class<W> executableInterface, IInstantiator instantiator) {
     this.executableInterface = executableInterface;
-    this.method2HandlerMap = ExecutableHandler.createHandlers(executableInterface);
+    this.instantiator = instantiator;
+    this.method2HandlerMap = ExecutableHandler.createHandlers(executableInterface, instantiator);
     ClassLoader classLoader = executableInterface.getClassLoader();
     Class<?>[] interfaces = new Class<?>[]{executableInterface};
     this.proxyConstructor = handler -> (W) Proxy.newProxyInstance(classLoader, interfaces, handler);
@@ -58,7 +77,7 @@ public class ReflectiveExecutableFactory<W extends IExecutable>
   @Override
   public W create(IExecutionEnvironment executionEnvironment) {
     ExecutableHandler<W> invocationHandler = new ExecutableHandler<>(
-        executableInterface, method2HandlerMap, executionEnvironment);
+        executableInterface, method2HandlerMap, instantiator, executionEnvironment);
     return proxyConstructor.apply(invocationHandler);
   }
 }

@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ public final class ParameterNode<I> implements ICommandLineNode {
   private final IConverter<I, String> converter;
   /** The value. */
   private final I value;
-  
+
   /** The extra parameter name 2 value map. */
   private Map<String, Object> extraParameterName2ValueMap;
 
@@ -57,6 +58,12 @@ public final class ParameterNode<I> implements ICommandLineNode {
     return Collections.singletonList(convertedValue);
   }
 
+  /**
+   * Sets the extra parameter name to value map.
+   * 
+   * @param extraParameterName2ValueMap
+   *          the extra parameter name to value map
+   */
   public void setExtraParameterName2ValueMap(Map<String, Object> extraParameterName2ValueMap) {
     this.extraParameterName2ValueMap = extraParameterName2ValueMap;
   }

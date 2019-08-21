@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +55,8 @@ public abstract class AbstractInteractiveProcessExecutor implements IExecutor {
           "Error", error, out, encoding, this::onError, extraParameterName2ValueMap);
       errorStreamGobblerThread.start();
       int returnCode = process.waitFor();
+      standardStreamGobblerThread.join();
+      errorStreamGobblerThread.join();
       return getResult(returnCode, extraParameterName2ValueMap);
     } catch (InterruptedException interruptedException) {
       Thread.currentThread().interrupt();

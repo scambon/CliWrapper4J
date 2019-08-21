@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ import java.lang.annotation.Target;
  * <p>
  * An annotation that describes a switch, i.e. a tag and values to be added to the command line.
  * </p>
- * <h3>Parameters</h3>
+ * <h2>Parameters</h2>
  * <p>
  * The method can have parameters:
  * </p>
@@ -52,10 +53,10 @@ import java.lang.annotation.Target;
  * annotation omitted)</li>
  * </ol>
  * 
- * <h3>Return type</h3> If the method is not annotated with {@link ExecuteNow}, the method must
+ * <h2>Return type</h2> If the method is not annotated with {@link ExecuteNow}, the method must
  * return its interface type.
  * 
- * <h3>Execution</h3> To trigger execution, use {@link ExecuteNow} or {@link ExecuteLater} in
+ * <h2>Execution</h2> To trigger execution, use {@link ExecuteNow} or {@link ExecuteLater} in
  * addition to this annotation.
  * 
  * @see Converter

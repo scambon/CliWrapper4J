@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +31,19 @@ import java.lang.annotation.Target;
  * now.
  * </p>
  * 
- * <h3>Execution</h3>
+ * <h2>Execution</h2>
  * <p>
  * The execution is handled as defined by the {@link Executor} on the method. If none is specified,
  * a {@link ProcessExecutor} is implicitly used.
  * </p>
  * 
- * <h3>Command line return code</h3>
+ * <h2>Command line return code</h2>
  * <p>
  * The return code is checked against the expectations defined by the {@link ReturnCode} on the
  * method. If none is specified, <code>0</code> is implicitly expected.
  * </p>
  * 
- * <h3>Return value</h3>
+ * <h2>Return value</h2>
  * <p>
  * The return type must be compatible with the {@link Converter} on the method. If none is
  * specified, a {@link ResultConverter} is implicitly used.

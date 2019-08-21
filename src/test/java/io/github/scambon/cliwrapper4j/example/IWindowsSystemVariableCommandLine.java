@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +20,10 @@ import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteNow;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.preprocessors.PrependWindowsCmdPreProcessor;
 
-@Executable({"cmd", "/C", "echo Hello %SOME_VARIABLE%"})
-public interface ISystemVariableCommandLine extends IExecutable {
+@Executable(value = "system_variable", preProcessors = PrependWindowsCmdPreProcessor.class)
+public interface IWindowsSystemVariableCommandLine extends IExecutable {
 
   @Switch("")
   @ExecuteNow

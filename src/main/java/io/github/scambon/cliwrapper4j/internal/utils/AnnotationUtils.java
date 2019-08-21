@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +16,10 @@
 
 package io.github.scambon.cliwrapper4j.internal.utils;
 
-import io.github.scambon.cliwrapper4j.CommandLineException;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -78,12 +78,14 @@ public final class AnnotationUtils {
    *          the annotation getter
    * @param defaultValueSupplier
    *          the default value supplier
+   * @param instantiator
+   *          the instantiator
    * @return the resulting value
    */
   public static <A extends Annotation, V> V getOrDefaultClass(AnnotatedElement annotated,
-      Class<A> annotationClass, Function<A, Class<? extends V>> getter,
+      Class<A> annotationClass, Function<A, Class<? extends V>> getter, IInstantiator instantiator,
       Supplier<? extends V> defaultValueSupplier) {
-    Function<A, V> instanceGetter = annotation -> createInstance(annotation, getter);
+    Function<A, V> instanceGetter = annotation -> createInstance(annotation, getter, instantiator);
     return getOrDefault(annotated, annotationClass, instanceGetter, defaultValueSupplier);
   }
 
@@ -98,16 +100,25 @@ public final class AnnotationUtils {
    *          the annotation
    * @param getter
    *          the getter
+   * @param instantiator
+   *          the instantiator
    * @return the instance
    */
   public static <A extends Annotation, V> V createInstance(A annotation,
-      Function<A, Class<? extends V>> getter) {
+      Function<A, Class<? extends V>> getter, IInstantiator instantiator) {
     Class<? extends V> classValue = getter.apply(annotation);
-    try {
-      Constructor<? extends V> constructor = classValue.getConstructor();
-      return constructor.newInstance();
-    } catch (ReflectiveOperationException exception) {
-      throw new CommandLineException(exception);
-    }
+    return instantiator.createIfPossibleOrThrow(classValue);
+  }
+
+  /**
+   * Gets the annotation string representation.
+   * 
+   * @param annotationType
+   *          the annotation type
+   * @return the string representation
+   */
+  public static String getAnnotationRepresentation(Class<? extends Annotation> annotationType) {
+    String annotationName = annotationType.getSimpleName();
+    return "@" + annotationName;
   }
 }

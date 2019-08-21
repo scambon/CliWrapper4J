@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,30 +24,27 @@ import java.util.Map;
 
 public class InterractiveHelloProcessExecutor extends AbstractInteractiveProcessExecutor {
 
-  private boolean standardSuccess = false;
-  private boolean errorSuccess = false;
+  private final StringBuilder standardSuccess = new StringBuilder();
+  private final StringBuilder errorSuccess = new StringBuilder();
 
   @Override
   protected void onStandard(String outputChunk, PrintWriter writer,
       Map<String, Object> extraParameterName2ValueMap) {
+    standardSuccess.append(outputChunk);
     Object name = extraParameterName2ValueMap.get("name");
-    if (outputChunk.contains("What's your name?")) {
+    if (outputChunk.contains("What is your name?")) {
       writer.println(name);
-    } else if (outputChunk.contains("Hello, " + name + "!")) {
-      this.standardSuccess = true;
     }
   }
 
   @Override
   protected void onError(String errorChunk, PrintWriter outputStream,
       Map<String, Object> extraParameterName2ValueMap) {
-    if (errorChunk.contains("This is the error stream")) {
-      this.errorSuccess = true;
-    }
+    errorSuccess.append(errorChunk);
   }
 
   @Override
   protected Result getResult(int returnCode, Map<String, Object> extraParameterName2ValueMap) {
-    return new Result("" + standardSuccess, "" + errorSuccess, returnCode);
+    return new Result(standardSuccess.toString(), errorSuccess.toString(), returnCode);
   }
 }

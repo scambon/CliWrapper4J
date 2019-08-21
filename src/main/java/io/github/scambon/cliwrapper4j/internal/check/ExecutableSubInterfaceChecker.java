@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +19,10 @@ package io.github.scambon.cliwrapper4j.internal.check;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.createInstance;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefaultClass;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 import io.github.scambon.cliwrapper4j.Aggregator;
+import io.github.scambon.cliwrapper4j.CommandLineException;
 import io.github.scambon.cliwrapper4j.Converter;
 import io.github.scambon.cliwrapper4j.Executable;
 import io.github.scambon.cliwrapper4j.ExecuteLater;
@@ -36,7 +39,11 @@ import io.github.scambon.cliwrapper4j.converters.IConverter;
 import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 import io.github.scambon.cliwrapper4j.internal.ExecutableHandler;
+import io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils;
+import io.github.scambon.cliwrapper4j.preprocessors.ICommandLinePreProcessor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -66,6 +73,26 @@ public final class ExecutableSubInterfaceChecker {
   private static final List<Class<? extends Annotation>> PARAMETER_ANNOTATIONS = Arrays.asList(
       Converter.class,
       Extra.class);
+
+  /** The instantiator. */
+  private final IInstantiator instantiator;
+
+  /**
+   * Creates the checker.
+   */
+  public ExecutableSubInterfaceChecker() {
+    this(new ReflectiveInstantiator());
+  }
+
+  /**
+   * Creates the checker.
+   * 
+   * @param instantiator
+   *          the instantiator
+   */
+  public ExecutableSubInterfaceChecker(IInstantiator instantiator) {
+    this.instantiator = instantiator;
+  }
 
   /**
    * Validates the interface.
@@ -107,6 +134,11 @@ public final class ExecutableSubInterfaceChecker {
         diagnostic.addIssue(executableInterface, "Illegal empty executable array");
       } else if (executable[0].isEmpty()) {
         diagnostic.addIssue(executableInterface, "Illegal empty executable name");
+      }
+      Class<? extends ICommandLinePreProcessor>[] preProcessors =
+          executableAnnotation.preProcessors();
+      for (Class<? extends ICommandLinePreProcessor> preProcessor : preProcessors) {
+        checkInstantiable(executableInterface, Executable.class, preProcessor, diagnostic);
       }
     }
   }
@@ -159,6 +191,8 @@ public final class ExecutableSubInterfaceChecker {
    *          the diagnostic
    */
   private void checkAnnotationDependencies(Method method, Diagnostic diagnostic) {
+    checkAnnotationDependency(method, diagnostic, Flattener.class, Switch.class);
+    checkAnnotationDependency(method, diagnostic, Aggregator.class, Switch.class);
     checkAnnotationDependency(method, diagnostic, ExecuteNow.class, Switch.class);
     checkAnnotationDependency(method, diagnostic, ExecuteLater.class, Switch.class);
     checkAnnotationDependency(
@@ -176,7 +210,7 @@ public final class ExecutableSubInterfaceChecker {
    *          the method
    * @param diagnostic
    *          the diagnostic
-   * @param ifAs
+   * @param ifHas
    *          the dependent annotation
    * @param thenRequire
    *          the possible dependencies
@@ -184,17 +218,22 @@ public final class ExecutableSubInterfaceChecker {
   @SafeVarargs
   private final void checkAnnotationDependency(
       Method method, Diagnostic diagnostic,
-      Class<? extends Annotation> ifAs,
+      Class<? extends Annotation> ifHas,
       Class<? extends Annotation>... thenRequire) {
-    Annotation ifAsAnnotation = method.getAnnotation(ifAs);
-    if (ifAsAnnotation != null) {
+    Annotation ifHasAnnotation = method.getAnnotation(ifHas);
+    if (ifHasAnnotation != null) {
       boolean thenRequireFound = stream(thenRequire)
           .map(method::getAnnotation)
           .anyMatch(Objects::nonNull);
       if (!thenRequireFound) {
+        String ifHasString = AnnotationUtils.getAnnotationRepresentation(ifHas);
+        String thenRequireString = stream(thenRequire)
+            .map(AnnotationUtils::getAnnotationRepresentation)
+            .collect(toList())
+            .toString();
         diagnostic.addIssue(method,
-            "Found annotation '@" + ifAs + "' but the required annotation in '"
-                + Arrays.toString(thenRequire) + "' is not found");
+            "Found annotation '" + ifHasString + "' but the required annotation in '"
+                + thenRequireString + "' is not found");
       }
     }
   }
@@ -213,19 +252,13 @@ public final class ExecutableSubInterfaceChecker {
     for (Class<? extends Annotation> methodAnnotation : METHOD_ANNOTATIONS) {
       Annotation annotation = method.getAnnotation(methodAnnotation);
       if (annotation != null) {
+        String methodAnnotationString = AnnotationUtils
+            .getAnnotationRepresentation(methodAnnotation);
         diagnostic.addIssue(method,
-            "Non-@Switch method should not have an '@" + methodAnnotation + "'");
+            "Ignored method should not have an '" + methodAnnotationString + "'");
       }
     }
-    for (Parameter parameter : method.getParameters()) {
-      for (Class<? extends Annotation> annotationClass : PARAMETER_ANNOTATIONS) {
-        Annotation annotation = parameter.getAnnotation(annotationClass);
-        if (annotation != null) {
-          diagnostic.addIssue(parameter,
-              "Non-@Switch method should not have a '@" + annotation + "' on its parameter");
-        }
-      }
-    }
+    checkNonSwitchMethod(method, diagnostic);
   }
 
   /**
@@ -273,7 +306,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchFlattenerAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Flattener flattenerAnnotation = switchMethod.getAnnotation(Flattener.class);
     Class<? extends IFlattener> flattenerClass = flattenerAnnotation.flattener();
-    checkReflectivelyCreatable(switchMethod, "@Flattener class", flattenerClass, diagnostic);
+    checkInstantiable(switchMethod, Flattener.class, flattenerClass, diagnostic);
   }
 
   /**
@@ -287,7 +320,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkSwitchAggregatorAnnotation(Method switchMethod, Diagnostic diagnostic) {
     Aggregator aggregatorAnnotation = switchMethod.getAnnotation(Aggregator.class);
     Class<? extends IAggregator> aggregatorClass = aggregatorAnnotation.aggregator();
-    checkReflectivelyCreatable(switchMethod, "@Aggregator class", aggregatorClass, diagnostic);
+    checkInstantiable(switchMethod, Aggregator.class, aggregatorClass, diagnostic);
   }
 
   /**
@@ -298,7 +331,6 @@ public final class ExecutableSubInterfaceChecker {
    * @param diagnostic
    *          the diagnostic
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkSwitchMethodParameters(Method switchMethod, Diagnostic diagnostic) {
     Set<String> extraParameterNames = new HashSet<>();
     for (Parameter parameter : switchMethod.getParameters()) {
@@ -313,14 +345,8 @@ public final class ExecutableSubInterfaceChecker {
 
       // Check @Converter compatibility
       if (converterAnnotation != null) {
-        IConverter converter = createInstance(converterAnnotation, Converter::value);
-        Class<?> parameterType = parameter.getType();
-        boolean canConvert = converter.canConvert(parameterType, String.class);
-        if (!canConvert) {
-          diagnostic.addIssue(switchMethod,
-              "Cannot convert its parameter '" + parameter
-                  + "' from '" + parameterType + "' to '" + String.class + "'");
-        }
+        checkSwitchMethodParameterConverter(
+            switchMethod, parameter, converterAnnotation, diagnostic);
       }
 
       // Check @Extra parameter
@@ -333,6 +359,37 @@ public final class ExecutableSubInterfaceChecker {
         }
         extraParameterNames.add(extraParameterName);
       }
+    }
+  }
+
+  /**
+   * Checks a switch method parameter converter.
+   *
+   * @param switchMethod
+   *          the switch method
+   * @param parameter
+   *          the parameter
+   * @param converterAnnotation
+   *          the converter annotation
+   * @param diagnostic
+   *          the diagnostic
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private void checkSwitchMethodParameterConverter(
+      Method switchMethod, Parameter parameter, Converter converterAnnotation,
+      Diagnostic diagnostic) {
+    try {
+      IConverter converter = createInstance(
+          converterAnnotation, Converter::value, instantiator);
+      Class<?> parameterType = parameter.getType();
+      boolean canConvert = converter.canConvert(parameterType, String.class);
+      if (!canConvert) {
+        diagnostic.addIssue(switchMethod,
+            "Cannot convert its parameter '" + parameter
+                + "' from '" + parameterType + "' to '" + String.class + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(switchMethod, cle.getMessage());
     }
   }
 
@@ -383,13 +440,17 @@ public final class ExecutableSubInterfaceChecker {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteNowMethod(Method executeNowMethod, Diagnostic diagnostic) {
-    IConverter resultConverter = getOrDefaultClass(
-        executeNowMethod, Converter.class, Converter::value, ResultConverter::new);
-    Class<?> returnType = executeNowMethod.getReturnType();
-    boolean canConvert = resultConverter.canConvert(Result.class, returnType);
-    if (!canConvert) {
-      diagnostic.addIssue(executeNowMethod,
-          "Cannot convert its return type to '" + returnType + "'");
+    try {
+      IConverter resultConverter = getOrDefaultClass(
+          executeNowMethod, Converter.class, Converter::value, instantiator, ResultConverter::new);
+      Class<?> returnType = executeNowMethod.getReturnType();
+      boolean canConvert = resultConverter.canConvert(Result.class, returnType);
+      if (!canConvert) {
+        diagnostic.addIssue(executeNowMethod,
+            "Cannot convert its return type to '" + returnType + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(executeNowMethod, cle.getMessage());
     }
   }
 
@@ -403,14 +464,19 @@ public final class ExecutableSubInterfaceChecker {
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void checkExecuteLaterMethod(Method executeLaterMethod, Diagnostic diagnostic) {
-    IConverter resultConverter = getOrDefaultClass(
-        executeLaterMethod, Converter.class, Converter::value, ResultConverter::new);
-    ExecuteLater executeLaterAnnotation = executeLaterMethod.getAnnotation(ExecuteLater.class);
-    Class<?> outType = executeLaterAnnotation.value();
-    boolean canConvert = resultConverter.canConvert(Result.class, outType);
-    if (!canConvert) {
-      diagnostic.addIssue(executeLaterMethod,
-          "Cannot convert its future return type to '" + outType + "'");
+    try {
+      IConverter resultConverter = getOrDefaultClass(
+          executeLaterMethod, Converter.class, Converter::value, instantiator,
+          ResultConverter::new);
+      ExecuteLater executeLaterAnnotation = executeLaterMethod.getAnnotation(ExecuteLater.class);
+      Class<?> outType = executeLaterAnnotation.value();
+      boolean canConvert = resultConverter.canConvert(Result.class, outType);
+      if (!canConvert) {
+        diagnostic.addIssue(executeLaterMethod,
+            "Cannot convert its future return type to '" + outType + "'");
+      }
+    } catch (CommandLineException cle) {
+      diagnostic.addIssue(executeLaterMethod, cle.getMessage());
     }
   }
 
@@ -425,7 +491,7 @@ public final class ExecutableSubInterfaceChecker {
   private void checkExecutorAnnotation(Method executeMethod, Diagnostic diagnostic) {
     Executor executorAnnotation = executeMethod.getAnnotation(Executor.class);
     Class<? extends IExecutor> executorClass = executorAnnotation.value();
-    checkReflectivelyCreatable(executeMethod, "@Executor", executorClass, diagnostic);
+    checkInstantiable(executeMethod, Executor.class, executorClass, diagnostic);
   }
 
   /**
@@ -439,28 +505,52 @@ public final class ExecutableSubInterfaceChecker {
   private void checkUnhandledMethod(Method method, Diagnostic diagnostic) {
     diagnostic.addIssue(method,
         "Is neither static, nor default, nor not public, nor annoted with @Command or @Switch");
+    checkNonSwitchMethod(method, diagnostic);
   }
 
   /**
-   * Checks if a method is reflectively creatable.
+   * Checks a method not annotated with Switch.
+   * 
+   * @param method
+   *          the method
+   * @param diagnostic
+   *          the diagnostic
+   */
+  private void checkNonSwitchMethod(Method method, Diagnostic diagnostic) {
+    for (Parameter parameter : method.getParameters()) {
+      for (Class<? extends Annotation> parameterAnnotation : PARAMETER_ANNOTATIONS) {
+        Annotation annotation = parameter.getAnnotation(parameterAnnotation);
+        if (annotation != null) {
+          String parameterAnnotationString = AnnotationUtils
+              .getAnnotationRepresentation(parameterAnnotation);
+          diagnostic.addIssue(method,
+              "Ignored method should not have an '" + parameterAnnotationString
+                  + "' on its parameter '" + parameter + "'");
+        }
+      }
+    }
+  }
+
+  /**
+   * Checks if a class is instantiable.
    *
    * @param annotatedElement
    *          the annotated element
-   * @param field
-   *          the field
+   * @param annotation
+   *          the annotation
    * @param clazz
    *          the class to check
    * @param diagnostic
    *          the diagnostic
    */
-  private void checkReflectivelyCreatable(
-      AnnotatedElement annotatedElement, String field, Class<?> clazz, Diagnostic diagnostic) {
-    boolean isReflectivelyCreatable = stream(clazz.getConstructors())
-        .filter(constructor -> constructor.getParameterCount() == 0)
-        .anyMatch(constructor -> Modifier.isPublic(constructor.getModifiers()));
-    if (!isReflectivelyCreatable) {
+  private void checkInstantiable(
+      AnnotatedElement annotatedElement, Class<? extends Annotation> annotation, Class<?> clazz,
+      Diagnostic diagnostic) {
+    if (!instantiator.canCreate(clazz)) {
+      String annotationString = AnnotationUtils.getAnnotationRepresentation(annotation);
       diagnostic.addIssue(annotatedElement,
-          "The " + field + " class '" + clazz + "' must have a public 0-arg constructor");
+          "The " + annotationString + " class '" + clazz
+              + "' cannot be created by the instantiator '" + instantiator + "'");
     }
   }
 }

@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +23,10 @@ import io.github.scambon.cliwrapper4j.Extra;
 import io.github.scambon.cliwrapper4j.IExecutable;
 import io.github.scambon.cliwrapper4j.Result;
 import io.github.scambon.cliwrapper4j.Switch;
+import io.github.scambon.cliwrapper4j.preprocessors.PrependWindowsCmdPreProcessor;
 
-@Executable({"cmd", "/C", "hello"})
-public interface IInterractiveHelloCommandLine extends IExecutable {
+@Executable(value = "hello", preProcessors = PrependWindowsCmdPreProcessor.class)
+public interface IWindowsInterractiveHelloCommandLine extends IExecutable {
 
   @Switch("")
   @ExecuteNow

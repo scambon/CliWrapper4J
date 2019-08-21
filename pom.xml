@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2018-2019 Sylvain Cambon Licensed under the Apache License, Version 
-	2.0 (the "License"); you may not use this file except in compliance with 
-	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-	Unless required by applicable law or agreed to in writing, software distributed 
-	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
-	the specific language governing permissions and limitations under the License. -->
+<!-- Copyright 2018-2019 Sylvain Cambon. -->
+<!-- Licensed under the Apache License, Version 2.0 (the "License"); you 
+	may not use this file except in compliance with the License. You may obtain 
+	a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 -->
+<!-- Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
+	License for the specific language governing permissions and limitations under 
+	the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -13,7 +15,7 @@
 
 	<groupId>io.github.scambon</groupId>
 	<artifactId>io.github.scambon.cliwrapper4j</artifactId>
-	<version>1.0.2</version>
+	<version>1.1.0</version>
 
 	<name>CliWrapper4J</name>
 	<description>A library to quickly build Java-friendly APIs to call command line applications</description>
@@ -21,7 +23,8 @@
 	<inceptionYear>2018</inceptionYear>
 	<licenses>
 		<license>
-			<name>Apache License, Version 2.0 (the "License")</name>
+			<!-- Use SPDX value -->
+			<name>Apache-2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 		</license>
@@ -36,6 +39,7 @@
 				<github>@scambon</github>
 				<twitter>@Sylvain_Cambon</twitter>
 				<linkedin>sylvaincambon</linkedin>
+				<openhub>SCambon</openhub>
 			</properties>
 		</developer>
 	</developers>
@@ -65,18 +69,20 @@
 
 	<properties>
 		<!-- Dependency versions -->
-		<junit.version>5.3.2</junit.version>
+		<hamcrest.version>2.1</hamcrest.version>
+		<junit.version>5.5.1</junit.version>
 
 		<!-- Plugin versions -->
-		<git.version>2.2.5</git.version>
+		<bundle.version>4.2.0</bundle.version>
+		<git.version>3.0.0</git.version>
 		<gpg.version>1.6</gpg.version>
-		<jar.version>3.1.1</jar.version>
-		<jacoco.version>0.8.2</jacoco.version>
+		<jar.version>3.1.2</jar.version>
+		<jacoco.version>0.8.4</jacoco.version>
 		<javadoc.version>3.0.1</javadoc.version>
 		<nexus-staging.version>1.6.8</nexus-staging.version>
-		<sonar.version>3.5.0.1254</sonar.version>
-		<source.version>3.0.1</source.version>
-		<surefire.version>2.22.1</surefire.version>
+		<sonar.version>3.6.0.1398</sonar.version>
+		<source.version>3.1.0</source.version>
+		<surefire.version>3.0.0-M3</surefire.version>
 
 		<!-- Plugin configurations -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -89,10 +95,23 @@
 	</properties>
 
 	<dependencies>
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -114,6 +133,27 @@
 				</executions>
 			</plugin>
 
+			<!-- Add OSGi headers -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>${bundle.version}</version>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<instructions>
+						<Export-Package>!${project.artifactId}.internal.*,${project.artifactId}.*</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
 			<!-- Generate the jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -121,6 +161,8 @@
 				<version>${jar.version}</version>
 				<configuration>
 					<archive>
+						<!-- Take the outputs from the maven-bundle-plugin -->
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 						<manifestEntries>
 							<Automatic-Module-Name>${jpms.module.automatic.name}</Automatic-Module-Name>
 							<!-- Include the Git commit hash in the manifest -->
@@ -137,10 +179,17 @@
 				<version>${jacoco.version}</version>
 				<executions>
 					<execution>
+						<id>instrument-tests</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
-						<phase>generate-resources</phase>
+					</execution>
+					<execution>
+						<!-- Generate XML report for SonarQube -->
+						<id>generate-coverage-report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -151,6 +200,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${surefire.version}</version>
 				<configuration>
+					<environmentVariables>
+						<NOT_OVERWRITTEN>N</NOT_OVERWRITTEN>
+						<OVERWRITTEN>M</OVERWRITTEN>
+					</environmentVariables>
 					<argLine>@{argLine}</argLine>
 					<trimStackTrace>false</trimStackTrace>
 				</configuration>
@@ -208,7 +261,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<!-- Monitor qualimetry -->

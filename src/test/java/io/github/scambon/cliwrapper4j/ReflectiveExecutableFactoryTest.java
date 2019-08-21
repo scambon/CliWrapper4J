@@ -1,4 +1,5 @@
-/* Copyright 2018-2019 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +17,8 @@
 package io.github.scambon.cliwrapper4j;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,41 +27,52 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.scambon.cliwrapper4j.environment.DefaultExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.example.IGitCommandLine;
-import io.github.scambon.cliwrapper4j.example.IInterractiveHelloCommandLine;
 import io.github.scambon.cliwrapper4j.example.IJavaCommandLine;
-import io.github.scambon.cliwrapper4j.example.ISystemVariableCommandLine;
+import io.github.scambon.cliwrapper4j.example.ILinuxInterractiveHelloCommandLine;
+import io.github.scambon.cliwrapper4j.example.ILinuxSystemVariableCommandLine;
 import io.github.scambon.cliwrapper4j.example.IUnhandledMethodsCommandLine;
+import io.github.scambon.cliwrapper4j.example.IWindowsInterractiveHelloCommandLine;
+import io.github.scambon.cliwrapper4j.example.IWindowsSystemVariableCommandLine;
 import io.github.scambon.cliwrapper4j.example.Version;
+import io.github.scambon.cliwrapper4j.example.VersionResultConverter;
+import io.github.scambon.cliwrapper4j.example.VirtualMachineType;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.MockExecutionHelper;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.instantiators.ReflectiveInstantiator;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 public class ReflectiveExecutableFactoryTest {
 
   private static IExecutableFactory<IJavaCommandLine> javaFactory;
   private static IExecutableFactory<IGitCommandLine> gitFactory;
   private static IExecutableFactory<IUnhandledMethodsCommandLine> unhandledFactory;
-  private static IExecutableFactory<IInterractiveHelloCommandLine> interactiveFactory;
-  private static IExecutableFactory<ISystemVariableCommandLine> systemVariableFactory;
+  private static IExecutableFactory<IWindowsInterractiveHelloCommandLine> windowsInteractiveFactory;
+  private static IExecutableFactory<ILinuxInterractiveHelloCommandLine> linuxInteractiveFactory;
+  private static IExecutableFactory<IWindowsSystemVariableCommandLine> windowsSystemVariableFactory;
+  private static IExecutableFactory<ILinuxSystemVariableCommandLine> linuxSystemVariableFactory;
 
   @BeforeAll
   public static void setUp() {
     javaFactory = new ReflectiveExecutableFactory<>(IJavaCommandLine.class);
     gitFactory = new ReflectiveExecutableFactory<>(IGitCommandLine.class);
     unhandledFactory = new ReflectiveExecutableFactory<>(IUnhandledMethodsCommandLine.class);
-    interactiveFactory = new ReflectiveExecutableFactory<>(IInterractiveHelloCommandLine.class);
-    systemVariableFactory = new ReflectiveExecutableFactory<>(ISystemVariableCommandLine.class);
+    windowsInteractiveFactory = new ReflectiveExecutableFactory<>(
+        IWindowsInterractiveHelloCommandLine.class);
+    linuxInteractiveFactory = new ReflectiveExecutableFactory<>(
+        ILinuxInterractiveHelloCommandLine.class);
+    windowsSystemVariableFactory = new ReflectiveExecutableFactory<>(IWindowsSystemVariableCommandLine.class);
+    linuxSystemVariableFactory = new ReflectiveExecutableFactory<>(ILinuxSystemVariableCommandLine.class);
   }
 
   @Test
@@ -70,7 +84,7 @@ public class ReflectiveExecutableFactoryTest {
     assertNotNull(version);
     environment.checkElements("java", "-version");
   }
-  
+
   @Test
   public void testMethodWithVoidReturnType() {
     IExecutionEnvironment environment = new DefaultExecutionEnvironment() {
@@ -83,8 +97,16 @@ public class ReflectiveExecutableFactoryTest {
     IGitCommandLine git = gitFactory.create(environment);
     git.configAdd("foo", "bar");
   }
-  
-  
+
+  @Test
+  public void testDefaultReflectiveConversion() {
+    MockExecutionEnvironment environment = MockExecutionHelper.createExecutionEnvironment("java",
+        "-version");
+    IJavaCommandLine java = javaFactory.create(environment);
+    VirtualMachineType virtualMachineType = java.getVirtualMachineType();
+    // The file used by the mock uses HotSpot
+    assertEquals(VirtualMachineType.HOTSPOT, virtualMachineType);
+  }
 
   @Test
   public void testCommandFailingConversion() {
@@ -203,31 +225,74 @@ public class ReflectiveExecutableFactoryTest {
   }
 
   @Test
-  @EnabledOnOs(OS.WINDOWS)
   public void testInteractiveProcessExecutor() {
-    Path path = Paths.get("src\\test\\resources\\io\\github\\scambon\\cliwrapper4j\\examples");
+    Path path = Paths.get("src/test/resources/io/github/scambon/cliwrapper4j/examples");
     IExecutionEnvironment environment = new DefaultExecutionEnvironment(path);
-    IInterractiveHelloCommandLine interactive = interactiveFactory.create(environment);
-    int durationSecond = 2;
-    long beforeNanos = System.nanoTime();
-    Result result = interactive.hello(durationSecond, "Llama");
+    int expectedDurationInSecond = 2;
+    Result result;
+    long beforeNanos;
+    boolean isWindows = isWindows();
+    if (isWindows) {
+      IWindowsInterractiveHelloCommandLine greeter = windowsInteractiveFactory.create(environment);
+      beforeNanos = System.nanoTime();
+      result = greeter.hello(expectedDurationInSecond, "Llama");
+    } else {
+      ILinuxInterractiveHelloCommandLine greeter = linuxInteractiveFactory.create(environment);
+      beforeNanos = System.nanoTime();
+      result = greeter.hello(expectedDurationInSecond, "Llama");
+    }
     long afterNanos = System.nanoTime();
-    String standardSuccess = result.getOutput();
-    assertEquals("true", standardSuccess);
-    String errorSuccess = result.getError();
-    assertEquals("true", errorSuccess);
+    String output = result.getOutput();
+    assertThat(output, containsString("What is your name?"));
+    String error = result.getError();
+    assertThat(error, containsString("This is the error stream"));
     long deltaNanos = afterNanos - beforeNanos;
-    // The duration is a maximum, it can take 1s less
-    assertTrue(deltaNanos >= 2 * (durationSecond - 1) * 1_000_000);
+    assertTrue(expectedDurationInSecond * 1_000_000 <= deltaNanos);
   }
 
   @Test
-  @EnabledOnOs(OS.WINDOWS)
   public void testSystemVariablePassing() {
-    IExecutionEnvironment environment = new DefaultExecutionEnvironment();
+    Path path = Paths.get("src/test/resources/io/github/scambon/cliwrapper4j/examples");
+    IExecutionEnvironment environment = new DefaultExecutionEnvironment(path);
     environment.setEnvironmentVariable("SOME_VARIABLE", "LLAMA");
-    ISystemVariableCommandLine cli = systemVariableFactory.create(environment);
-    String output = cli.doIt();
+    String output;
+    if(isWindows()) {
+      IWindowsSystemVariableCommandLine cli = windowsSystemVariableFactory.create(environment);
+      output = cli.doIt();
+    } else {
+      ILinuxSystemVariableCommandLine cli = linuxSystemVariableFactory.create(environment);
+      output = cli.doIt();
+    }
     assertTrue(output.contains("Hello LLAMA"));
+  }
+  
+  private boolean isWindows() {
+    String osName = System.getProperty("os.name");
+    osName = osName.toLowerCase();
+    return osName.contains("win");
+  }
+
+  @Test
+  public void testCustomInstantiator() {
+    List<Class<?>> requestedClasses = new ArrayList<>();
+    IInstantiator interceptingInstantiator = new IInstantiator() {
+      private IInstantiator delegate = new ReflectiveInstantiator();
+      @Override
+      public boolean canCreate(Class<?> clazz) {
+        return delegate.canCreate(clazz);
+      }
+
+      @Override
+      public <T> T create(Class<T> clazz) throws CommandLineException {
+        requestedClasses.add(clazz);
+        return delegate.create(clazz);
+      }
+    };
+    IExecutableFactory<IJavaCommandLine> javaFactory2 = new ReflectiveExecutableFactory<>(
+        IJavaCommandLine.class, interceptingInstantiator);
+    IJavaCommandLine java = javaFactory2.create();
+    Version version = java.version();
+    assertNotNull(version);
+    assertTrue(requestedClasses.contains(VersionResultConverter.class));
   }
 }

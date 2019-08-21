@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@ package io.github.scambon.cliwrapper4j.internal.nodes;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefault;
 import static io.github.scambon.cliwrapper4j.internal.utils.AnnotationUtils.getOrDefaultClass;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import io.github.scambon.cliwrapper4j.CommandLineException;
@@ -32,6 +34,8 @@ import io.github.scambon.cliwrapper4j.converters.ResultConverter;
 import io.github.scambon.cliwrapper4j.environment.IExecutionEnvironment;
 import io.github.scambon.cliwrapper4j.executors.IExecutor;
 import io.github.scambon.cliwrapper4j.executors.ProcessExecutor;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
+import io.github.scambon.cliwrapper4j.preprocessors.ICommandLinePreProcessor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,10 +50,14 @@ import java.util.stream.Collectors;
  */
 public final class ExecutableNode implements ICommandLineNode {
 
-  /** The execution environment. */
-  private final IExecutionEnvironment executionEnvironment;
   /** The executable. */
   private final List<String> executable;
+  /** The pre-processors. */
+  private final List<ICommandLinePreProcessor> preProcessors;
+  /** The instantiator. */
+  private final IInstantiator instantiator;
+  /** The execution environment. */
+  private final IExecutionEnvironment executionEnvironment;
   /** The command and options. */
   private final List<SwitchNode> switchNodes = new ArrayList<>();
 
@@ -69,12 +77,22 @@ public final class ExecutableNode implements ICommandLineNode {
    *
    * @param executable
    *          the executable
+   * @param preProcessorClasses
+   *          the pre-processor classes
+   * @param instantiator
+   *          the instantiator
    * @param executionEnvironment
    *          the execution environment
    */
-  public ExecutableNode(String[] executable, IExecutionEnvironment executionEnvironment) {
+  public ExecutableNode(
+      String[] executable, Class<? extends ICommandLinePreProcessor>[] preProcessorClasses,
+      IInstantiator instantiator, IExecutionEnvironment executionEnvironment) {
     this.executable = asList(executable);
+    this.instantiator = instantiator;
     this.executionEnvironment = executionEnvironment;
+    this.preProcessors = stream(preProcessorClasses)
+      .map(instantiator::createIfPossibleOrThrow)
+      .collect(toList());
   }
 
   /**
@@ -131,14 +149,27 @@ public final class ExecutableNode implements ICommandLineNode {
       Method method, Map<String, Object> extraParameterName2ValueMap) {
     this.extraParameterName2ValueMap = extraParameterName2ValueMap;
     this.executor = getOrDefaultClass(
-        method, Executor.class, Executor::value, ProcessExecutor::new);
+        method, Executor.class, Executor::value, instantiator, ProcessExecutor::new);
     int[] expectedReturnCodeArray = getOrDefault(
         method, ReturnCode.class, ReturnCode::value, () -> new int[]{0});
     this.expectedReturnCodes = Arrays.stream(expectedReturnCodeArray)
         .boxed()
         .collect(toList());
     this.resultConverter = (IConverter<Result, ?>) getOrDefaultClass(
-        method, Converter.class, Converter::value, ResultConverter::new);
+        method, Converter.class, Converter::value, instantiator, ResultConverter::new);
+  }
+
+  /**
+   * Executes the command and the post-processing.
+   *
+   * @return the result
+   */
+  public Object execute() {
+    List<String> commandLineElements = flatten();
+    commandLineElements = runPreProcessing(commandLineElements);
+    Result result = executionEnvironment.run(
+        executor, commandLineElements, extraParameterName2ValueMap);
+    return runPostProcessing(result);
   }
 
   @Override
@@ -154,15 +185,18 @@ public final class ExecutableNode implements ICommandLineNode {
   }
 
   /**
-   * Executes the command and the post-processing.
+   * Runs the pre-processors.
    *
-   * @return the result
+   * @param rawCommandLineElements
+   *          the raw command line elements
+   * @return the processed command line elements
    */
-  public Object execute() {
-    List<String> commandLineElements = flatten();
-    Result result = executionEnvironment.run(
-        executor, commandLineElements, extraParameterName2ValueMap);
-    return runPostProcessing(result);
+  private List<String> runPreProcessing(List<String> rawCommandLineElements) {
+    List<String> commandLineElements = rawCommandLineElements;
+    for (ICommandLinePreProcessor preProcessor : preProcessors) {
+      commandLineElements = preProcessor.process(commandLineElements, executionEnvironment);
+    }
+    return commandLineElements;
   }
 
   /**

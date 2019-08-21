@@ -1,4 +1,4 @@
-#Copyright 2018-2019 Sylvain Cambon
+# Copyright 2018-2019 Sylvain Cambon
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,19 +19,37 @@ os:
 #  - windows (no Java support for now)
 
 jdk:
-  - oraclejdk8
+  # Most common JDK
+  - openjdk8
+  # Modular JDK
+  - openjdk9
+  # Current LTS
   - openjdk11
+  # Latest released
+  - openjdk12
+  # Next release
+  - openjdk13
 
 matrix:
   include:
   - dist: trusty
-    jdk: oraclejdk8
+    jdk: openjdk8
+  - dist: trusty
+    jdk: openjdk9
   - dist: xenial
     jdk: openjdk11
+  - dist: xenial
+    jdk: openjdk12
+  - dist: bionic
+    jdk: openjdk13
 
 cache:
   directories:
     - ~/.m2/repository
+
+git:
+  # Disable depth and enable getting all branches, which is good for SonarQube
+  depth: false
 
 addons:
   sonarcloud:
@@ -49,13 +67,13 @@ jobs:
     - stage: deploy
       os: linux
       dist: trusty
-      jdk: oraclejdk8
+      jdk: openjdk8
       script:
         - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
         - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
         - "[[ $TRAVIS_BRANCH =~ ^master|develop$ ]] && maven_goal='deploy' || maven_goal='verify'"
         - echo Run Maven till goal $maven_goal on branch $TRAVIS_BRANCH
-        - mvn --settings settings.xml clean $maven_goal --activate-profiles release
+        - mvn --settings settings.xml clean $maven_goal --activate-profiles deploy
         - project_version=$(sed -n 's/version=//p' target/maven-archiver/pom.properties)
         - echo Detected version $project_version
       deploy:

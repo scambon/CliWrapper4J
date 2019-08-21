@@ -1,4 +1,5 @@
-/* Copyright 2018-2019 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ public class CompositeConverter<I, O> implements IConverter<I, O> {
    *          the converters
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CompositeConverter(List<IConverter<? extends I, ? extends O>> converters) {
+  public CompositeConverter(List<? extends IConverter<? extends I, ? extends O>> converters) {
     this.converters = (List) converters;
   }
 

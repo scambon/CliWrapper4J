@@ -1,4 +1,5 @@
-/* Copyright 2018 Sylvain Cambon
+/*
+ * Copyright 2018-2019 Sylvain Cambon
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +30,7 @@ import io.github.scambon.cliwrapper4j.converters.IConverter;
 import io.github.scambon.cliwrapper4j.converters.StringQuotedIfNeededConverter;
 import io.github.scambon.cliwrapper4j.flatteners.IFlattener;
 import io.github.scambon.cliwrapper4j.flatteners.JoiningOnDelimiterFlattener;
+import io.github.scambon.cliwrapper4j.instantiators.IInstantiator;
 import io.github.scambon.cliwrapper4j.internal.nodes.ExecutableNode;
 import io.github.scambon.cliwrapper4j.internal.nodes.ParameterNode;
 import io.github.scambon.cliwrapper4j.internal.nodes.SwitchNode;
@@ -59,15 +61,19 @@ public class SwitchMethodHandler implements IMethodHandler {
    *          the method
    * @param zwitch
    *          the command or switch
+   * @param instantiator
+   *          the instantiator
    */
   @SuppressWarnings("unchecked")
-  public SwitchMethodHandler(Method method, Switch zwitch) {
+  public SwitchMethodHandler(Method method, Switch zwitch, IInstantiator instantiator) {
     IAggregator aggregator = getOrDefaultClass(
-        method, Aggregator.class, Aggregator::aggregator, SymbolAggregator::new);
+        method, Aggregator.class, Aggregator::aggregator, instantiator, SymbolAggregator::new);
     String aggregatorParameter = getOrDefault(
         method, Aggregator.class, Aggregator::value, () -> " ");
     IFlattener flattener = getOrDefaultClass(
-        method, Flattener.class, Flattener::flattener, JoiningOnDelimiterFlattener::new);
+        method,
+        Flattener.class, Flattener::flattener, instantiator,
+        JoiningOnDelimiterFlattener::new);
     String flattenerParameter = getOrDefault(method, Flattener.class, Flattener::value, () -> " ");
     this.switchNodeSupplier = () -> new SwitchNode(
         zwitch, aggregator, aggregatorParameter, flattener, flattenerParameter);
@@ -77,7 +83,9 @@ public class SwitchMethodHandler implements IMethodHandler {
       Extra extraAnnotation = parameter.getAnnotation(Extra.class);
       if (extraAnnotation == null) {
         IConverter<?, String> converter = (IConverter<?, String>) getOrDefaultClass(
-            parameter, Converter.class, Converter::value, StringQuotedIfNeededConverter::new);
+            parameter,
+            Converter.class, Converter::value, instantiator,
+            StringQuotedIfNeededConverter::new);
         parameterIndex2ConverterMap.put(parameterIndex, converter);
       } else {
         String parameterName = extraAnnotation.value();
